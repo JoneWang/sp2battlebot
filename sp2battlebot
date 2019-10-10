@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+path=$(pwd)
+script="service.py"
+filename="$path/$script"
+startcmd="python3.7 $filename"
+
+op=$1
+[ -z "$op" ] && op=start
+
+pid=$(ps -ef | grep $filename | grep -v "grep" | head -n1 | awk '{print $2}')
+
+start() {
+  if [ -z $pid ]; then
+    nohup $startcmd >>logs/$script.log 2>&1 &
+    return 0
+  else
+    echo "Bot already started"
+    return 1
+  fi
+}
+
+stop() {
+  kill -9 "$pid"
+  printf "pid %s is killed.\n" "$pid"
+}
+
+case $op in
+start)
+  echo "Starting..."
+  if start; then
+    echo "Starting finished"
+  fi
+  ;;
+stop)
+  echo "Stopping..."
+  stop
+  echo "Stopping finished"
+  ;;
+restart)
+  echo "Restart..."
+  stop
+  if start; then
+    echo "Restart finished"
+  fi
+  ;;
+*) ;;
+esac
