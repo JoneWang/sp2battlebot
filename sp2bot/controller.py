@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 from sp2bot.botdecorator import handler, check_session_handler
 from sp2bot.message import Message
 from sp2bot.models import BattlePoll
-from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid
+from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid, Splatoon2Auth
 from sp2bot import store
 from sp2bot.utils.type import try_to_int
 
@@ -13,6 +14,37 @@ class Controller:
     def __init__(self, task):
         self._task = task
         pass
+
+    @handler
+    def get_token(self, context):
+        message = Message(context)
+
+        login_url = Splatoon2Auth().get_login_url(context.user.id)
+        if not login_url:
+            context.send_message(message.splatoon_connect_error)
+            return
+
+        context.send_message(message.login_url(login_url))
+
+    @handler
+    def generate_iksm(self, context):
+        message = Message(context)
+
+        token_data = context.args[0]
+        wait_message_id = context.send_message(message.generate_iksm_wait)
+
+        session_token_code = re.search('de=(.*)&', token_data)
+        session_token = Splatoon2Auth().get_session_token(context.user.id, session_token_code.group(1))
+        if not session_token:
+            context.send_message(message.splatoon_connect_error)
+            return
+
+        iksm_session = Splatoon2Auth(session_token).get_cookie(session_token)
+        if not iksm_session:
+            context.send_message(message.splatoon_connect_error)
+            return
+
+        context.edit_message(message.iksm_session(iksm_session), wait_message_id)
 
     @handler
     def set_session(self, context):

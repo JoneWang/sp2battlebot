@@ -24,6 +24,7 @@ class User(Model):
                  last_name=None,
                  push=False,
                  iksm_session=None,
+                 session_token=None,
                  sp2_principal_id=None,
                  sp2_nickname=None,
                  sp2_style=None,
@@ -36,6 +37,7 @@ class User(Model):
         self.username = username
         self.push = push
         self.iksm_session = iksm_session
+        self.session_token = session_token
 
         if iksm_session and sp2_principal_id:
             self.sp2_user = SP2Player(sp2_principal_id,

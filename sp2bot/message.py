@@ -15,6 +15,27 @@ class Message:
     def __init__(self, context):
         self.context = context
 
+    def login_url(self, url):
+        text = '1.Navigate to this URL in your *desktop* browser:\n'
+        text += f'[Click here to open the URL]({url})\n\n'
+        text += '2.Log in, right click the "Select this person" button, copy the link address, and type /geniksm `[link_address]`.'
+
+        return text, MessageType.Markdown
+
+    @property
+    def generate_iksm_wait(self):
+        text = 'Please wait a moment...'
+        return text
+
+    def iksm_session(self, iksm_session):
+        text = f'{iksm_session}'
+        return text
+
+    @property
+    def splatoon_connect_error(self):
+        text = 'Error from Nintendo server, please try again later.'
+        return text
+
     @property
     def session_invalid(self):
         text = 'The `iksm_session` is invalid.\n'

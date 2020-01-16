@@ -18,6 +18,7 @@ class UserTable(db.Entity):
     last_name = Optional(str, nullable=True)
     push = Required(bool, default=0)
     iksm_session = Optional(str, nullable=True)
+    session_token = Optional(str, nullable=True)
     sp2_principal_id = Optional(str, nullable=True)
     sp2_nickname = Optional(str, nullable=True)
     sp2_style = Optional(str, nullable=True)
@@ -44,6 +45,7 @@ def insert_user(user):
               last_name=user.last_name,
               push=user.push,
               iksm_session=user.iksm_session,
+              session_token=user.session_token,
               sp2_principal_id=user.sp2_user.principal_id,
               sp2_nickname=user.sp2_user.nickname,
               sp2_style=user.sp2_user.style,
@@ -65,6 +67,7 @@ def select_users_with_principal_ids(principal_ids):
                           last_name=u.last_name,
                           push=u.push,
                           iksm_session=u.iksm_session,
+                          session_token=u.session_token,
                           sp2_principal_id=u.sp2_principal_id,
                           sp2_nickname=u.sp2_nickname,
                           sp2_style=u.sp2_style,
@@ -84,6 +87,7 @@ def select_user(user_id):
                     last_name=u.last_name,
                     push=u.push,
                     iksm_session=u.iksm_session,
+                    session_token=u.session_token,
                     sp2_principal_id=u.sp2_principal_id,
                     sp2_nickname=u.sp2_nickname,
                     sp2_style=u.sp2_style,
@@ -103,6 +107,7 @@ def update_user(user):
         u.first_name = user.first_name
         u.last_name = user.last_name
         u.iksm_session = user.iksm_session
+        u.session_token = user.session_token
         u.sp2_principal_id = user.sp2_user.principal_id
         u.sp2_nickname = user.sp2_user.nickname
         u.sp2_style = user.sp2_user.style

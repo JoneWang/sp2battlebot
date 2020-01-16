@@ -55,6 +55,8 @@ class Bot:
                                           username=configs.ADMINISTRATOR_USERNAME
                                       )))
         dp.add_handler(CommandHandler('start', controller.start))
+        dp.add_handler(CommandHandler('gettoken', controller.get_token))
+        dp.add_handler(CommandHandler('geniksm', controller.generate_iksm))
         dp.add_handler(CommandHandler('setsession', controller.set_session))
         dp.add_handler(CommandHandler('last', controller.last))
         dp.add_handler(CommandHandler('last50', controller.last50))

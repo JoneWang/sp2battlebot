@@ -60,9 +60,17 @@ class BotContext:
             (content, message_type) = message
         parse_mode = message_type if message_type else None
         try:
-            self.bot.send_message(chat_id,
+            return self.bot.send_message(chat_id,
                                   content,
-                                  parse_mode=parse_mode)
+                                  parse_mode=parse_mode).message_id
         except BadRequest as e:
             # Resend
-            self.bot.send_message(chat_id, content)
+            return self.bot.send_message(chat_id, content).message_id
+
+    def edit_message(self, message, message_id, chat_id=None):
+        if not chat_id:
+            chat_id = self.chat_id
+
+        self.bot.edit_message_text(message,
+                                   chat_id=chat_id,
+                                   message_id=message_id)
