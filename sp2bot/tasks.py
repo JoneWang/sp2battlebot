@@ -80,7 +80,7 @@ class Task:
             # Update stat
             battle_poll.game_count += 1
             battle_poll.game_victory_count += int(battle.victory)
-            battle_poll.last_battle_number = last_battle.battle_number + '2'
+            battle_poll.last_battle_number = last_battle.battle_number
             # Save updated to context
             context.job.context = (battle_poll, splatoon2)
 
@@ -107,7 +107,7 @@ class Task:
                 bot.delete_message(battle_poll.chat.id, last_message_id)
 
         elif not last_battle_number:
-            battle_poll.last_battle_number = last_battle.battle_number + '2'
+            battle_poll.last_battle_number = last_battle.battle_number
             # Save updated to context
             context.job.context = (battle_poll, splatoon2)
 
