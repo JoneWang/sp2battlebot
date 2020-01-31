@@ -243,12 +243,12 @@ def _battle_result_member(self_sp2_user, members):
     users = store.select_users_with_principal_ids(principal_ids)
 
     def format_member(member):
-        nickname = member.player.nickname[:9]
+        nickname = f'`{member.player.nickname}`'
 
         # Replace member nickname to telegram name
-        for u in reversed(users):
-            if u.sp2_user.principal_id == member.player.principal_id:
-                nickname = u.display_name
+        # for u in reversed(users):
+        #     if u.sp2_user.principal_id == member.player.principal_id:
+        #         nickname = u.display_name
 
         # If self
         if self_sp2_user and member.player.principal_id == self_sp2_user.principal_id:
