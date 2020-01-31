@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import re
+
+from telegram.error import BadRequest
+
 from sp2bot.botdecorator import handler, check_session_handler
-from sp2bot.message import Message
+from sp2bot.message import Message, MessageType
 from sp2bot.models import BattlePoll
 from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid, Splatoon2Auth
 from sp2bot import store
@@ -34,7 +37,9 @@ class Controller:
         wait_message_id = context.send_message(message.generate_iksm_wait)
 
         session_token_code = re.search('de=(.*)&', token_data)
-        session_token = Splatoon2Auth().get_session_token(context.user.id, session_token_code.group(1))
+        session_token = Splatoon2Auth().get_session_token(context.user.id,
+                                                          session_token_code.group(
+                                                              1))
         if not session_token:
             context.send_message(message.splatoon_connect_error)
             return
@@ -44,7 +49,8 @@ class Controller:
             context.send_message(message.splatoon_connect_error)
             return
 
-        context.edit_message(message.iksm_session(iksm_session), wait_message_id)
+        context.edit_message(message.iksm_session(iksm_session),
+                             wait_message_id)
 
     @handler
     def set_session(self, context):
@@ -197,3 +203,32 @@ class Controller:
     @handler
     def start(self, context):
         context.send_message('Todo')
+
+    def menu_actions(self, update, context):
+        bot = context.bot
+        query = update.callback_query
+        chat_id = query.message.chat.id
+        message_id = query.message.message_id
+
+        if query.data == 'battle_delete':
+            bot.delete_message(chat_id, message_id)
+
+        if query.data == 'battle_tql':
+            menus = query.message.reply_markup
+            tql_button = menus.inline_keyboard[0][0]
+            tql_text = tql_button.text
+            tql_text = tql_text.replace('👍', '')
+            if tql_text != '':
+                count = int(tql_text)
+                count += 1
+            else:
+                count = 1
+            tql_button.text = f'👍{count}'
+            menus.inline_keyboard[0][0] = tql_button
+
+            # Reset last_message_id
+            user_id = query.from_user.id
+            store.reset_push_last_message_id(user_id)
+
+            # Update reply markup
+            query.edit_message_reply_markup(menus)

@@ -131,9 +131,17 @@ def get_started_push_poll():
     polls = []
     for u in us:
         poll_dict = json.loads(u.battle_poll)
-        polls.append(BattlePoll.de_json(poll_dict))
+        poll = BattlePoll.de_json(poll_dict)
+        polls.append(poll)
 
     return polls
+
+
+@db_session
+def get_started_push_poll_by_user_id(user_id):
+    u = select(u for u in UserTable if u.id == user_id).first()
+    poll_dict = json.loads(u.battle_poll)
+    return BattlePoll.de_json(poll_dict)
 
 
 @db_session
@@ -142,3 +150,14 @@ def update_push_to_false(user_id):
 
     if u:
         u.push = False
+
+
+@db_session
+def reset_push_last_message_id(user_id):
+    u = select(u for u in UserTable if u.id == user_id).first()
+
+    if u:
+        poll_dict = json.loads(u.battle_poll)
+        poll = BattlePoll.de_json(poll_dict)
+        poll.last_message_id = None
+        u.battle_poll = poll.to_json()

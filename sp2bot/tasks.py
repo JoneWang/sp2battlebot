@@ -3,6 +3,7 @@
 
 from telegram.error import BadRequest
 from telegram.ext import CallbackContext
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from sp2bot import store
 from sp2bot.message import Message
@@ -60,6 +61,7 @@ class Task:
 
     def _battle_push_task(self, context: CallbackContext):
         (battle_poll, splatoon2) = context.job.context
+        battle_poll = store.get_started_push_poll_by_user_id(battle_poll.user.id)
 
         last_message_id = battle_poll.last_message_id
         last_battle_number = battle_poll.last_battle_number
@@ -84,6 +86,13 @@ class Task:
             # Save updated to context
             context.job.context = (battle_poll, splatoon2)
 
+            # Menus
+            buttons = [[
+                InlineKeyboardButton('👍', callback_data='battle_tql'),
+                InlineKeyboardButton('🗑', callback_data='battle_delete')
+            ]]
+            reply_markup = InlineKeyboardMarkup(buttons)
+
             # Send push message
             (content, message_type) = Message.push_battle(battle,
                                                           battle_poll)
@@ -92,10 +101,13 @@ class Task:
             try:
                 sent_message = bot.send_message(battle_poll.chat.id,
                                                 content,
-                                                parse_mode=parse_mode)
+                                                parse_mode=parse_mode,
+                                                reply_markup=reply_markup)
             except BadRequest as e:
                 # Resend
-                sent_message = bot.send_message(battle_poll.chat.id, content)
+                sent_message = bot.send_message(battle_poll.chat.id,
+                                                content,
+                                                reply_markup=reply_markup)
 
             # Update value
             battle_poll.last_message_id = sent_message.message_id

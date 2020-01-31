@@ -4,12 +4,15 @@ import os
 import sys
 from threading import Thread
 
-from telegram.ext import Updater, CommandHandler, Filters
+from telegram.ext import Updater, CommandHandler, Filters, CallbackQueryHandler
 
 import configs
 from sp2bot.controller import Controller
 from sp2bot.tasks import Task
+import logging
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class Bot:
 
@@ -69,6 +72,7 @@ class Bot:
         dp.add_handler(CommandHandler('stoppush', controller.stop_push))
         dp.add_handler(CommandHandler('resetpush', controller.reset_push))
         dp.add_handler(CommandHandler('help', controller.help))
+        dp.add_handler(CallbackQueryHandler(controller.menu_actions))
 
         # Set task job
         task.job_queue = updater.job_queue
