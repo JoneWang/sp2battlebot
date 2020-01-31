@@ -208,6 +208,7 @@ class Controller:
         bot = context.bot
         query = update.callback_query
         chat_id = query.message.chat.id
+        user_id = query.from_user.id
         message_id = query.message.message_id
 
         if query.data == 'battle_delete':
@@ -227,8 +228,11 @@ class Controller:
             menus.inline_keyboard[0][0] = tql_button
 
             # Reset last_message_id
-            user_id = query.from_user.id
-            store.reset_push_last_message_id(user_id)
+            job = self._task.get_job(user_id)
+            (battle_poll, splatoon2) = job.context
+            if battle_poll.last_message_id == message_id:
+                battle_poll.last_message_id = 0
+                job.context = (battle_poll, splatoon2)
 
             # Update reply markup
             query.edit_message_reply_markup(menus)

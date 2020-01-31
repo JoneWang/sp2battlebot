@@ -14,6 +14,7 @@ class Task:
 
     def __init__(self, job_queue=None):
         self._battle_pools = []
+        self._jobs = []
         self.job_queue = job_queue
 
     def task_exist(self, user_id):
@@ -23,7 +24,8 @@ class Task:
         # print(f'Query job with user_id: {user_id}')
         # print([j.name for j in self.job_queue.jobs()])
 
-        all_jobs = self.job_queue.jobs()
+        all_jobs = self._jobs
+        # all_jobs = self.job_queue.jobs()
         jobs = [j for j in all_jobs if j.name == str(user_id) and not j.removed]
         # print('Not removed jobs:')
         # print([j.name for j in jobs])
@@ -53,15 +55,15 @@ class Task:
 
         job_params = (battle_poll,
                       Splatoon2(battle_poll.user.iksm_session))
-        self.job_queue.run_repeating(self._battle_push_task,
-                                     interval=10,
-                                     first=0,
-                                     context=job_params,
-                                     name=str(battle_poll.user.id))
+        job = self.job_queue.run_repeating(self._battle_push_task,
+                                           interval=10,
+                                           first=0,
+                                           context=job_params,
+                                           name=str(battle_poll.user.id))
+        self._jobs.append(job)
 
     def _battle_push_task(self, context: CallbackContext):
         (battle_poll, splatoon2) = context.job.context
-        battle_poll = store.get_started_push_poll_by_user_id(battle_poll.user.id)
 
         last_message_id = battle_poll.last_message_id
         last_battle_number = battle_poll.last_battle_number
