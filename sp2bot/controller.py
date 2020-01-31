@@ -211,9 +211,6 @@ class Controller:
         user_id = query.from_user.id
         message_id = query.message.message_id
 
-        if query.data == 'battle_delete':
-            bot.delete_message(chat_id, message_id)
-
         if query.data == 'battle_tql':
             menus = query.message.reply_markup
             tql_button = menus.inline_keyboard[0][0]

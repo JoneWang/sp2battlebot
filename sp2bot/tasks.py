@@ -90,8 +90,7 @@ class Task:
 
             # Menus
             buttons = [[
-                InlineKeyboardButton('👍', callback_data='battle_tql'),
-                InlineKeyboardButton('🗑', callback_data='battle_delete')
+                InlineKeyboardButton('👍', callback_data='battle_tql')
             ]]
             reply_markup = InlineKeyboardMarkup(buttons)
 
