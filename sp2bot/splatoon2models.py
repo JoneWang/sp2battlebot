@@ -222,12 +222,13 @@ class SP2PlayerSpecies:
 
 class SP2Player(Model):
 
-    def __init__(self, principal_id, nickname, style, species, json):
+    def __init__(self, principal_id, nickname, style, species, json, weapon=None):
         self.principal_id = principal_id
         self.nickname = nickname
         self.style = style
         self.species = species
         self.json = json
+        self.weapon = weapon
 
     @classmethod
     def de_json(cls, data):
@@ -245,6 +246,27 @@ class SP2Player(Model):
         battle = dict()
         for key in data:
             if key in ('principal_id', 'nickname', 'style', 'species', 'json'):
+                battle[key] = data[key]
+
+        battle['weapon'] = SP2PlayerWeapon.de_json(data.get('weapon'))
+
+        return cls(**battle)
+
+
+class SP2PlayerWeapon(Model):
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def de_json(cls, data):
+        if not data:
+            return cls('')
+
+        data = super(SP2PlayerWeapon, cls).de_json(data)
+
+        battle = dict()
+        for key in data:
+            if key in ('name'):
                 battle[key] = data[key]
 
         return cls(**battle)

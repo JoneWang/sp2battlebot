@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 import re
 
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup
 from telegram.error import BadRequest
 
+from sp2bot.botcontext import BotContext
 from sp2bot.botdecorator import handler, check_session_handler
 from sp2bot.message import Message, MessageType
 from sp2bot.models import BattlePoll
@@ -210,9 +212,15 @@ class Controller:
         chat_id = query.message.chat.id
         user_id = query.from_user.id
         message_id = query.message.message_id
+        menus = query.message.reply_markup
 
-        if query.data == 'battle_tql':
-            menus = query.message.reply_markup
+        context = BotContext(update, context)
+        message = Message(context)
+
+        command = query.data.split('/')
+        data = command[0]
+
+        if data == 'battle_like':
             tql_button = menus.inline_keyboard[0][0]
             tql_text = tql_button.text
             tql_text = tql_text.replace('👍', '')
@@ -233,3 +241,16 @@ class Controller:
 
             # Update reply markup
             query.edit_message_reply_markup(menus)
+
+        if data == 'battle_more':
+            battle_id = command[1]
+
+            battle = Splatoon2(context.user.iksm_session).get_battle(battle_id)
+            message = Message.push_battle_more_detail(battle)
+
+            reply_markup = InlineKeyboardMarkup([[menus.inline_keyboard[0][0]]])
+
+            query.edit_message_text(message[0],
+                                    parse_mode=MessageType.Markdown,
+                                    reply_markup=reply_markup)
+            # query.edit_message_reply_markup(reply_markup)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from telegram import Update
 from telegram.error import BadRequest
 
 from sp2bot import store
@@ -12,7 +13,10 @@ class BotContext:
         self.telegram_update = telegram_update
         self.telegram_context = telegram_context
 
-        tg_user = telegram_update.message.from_user
+        if type(telegram_update) is Update:
+            tg_user = telegram_update.effective_user
+        else:
+            tg_user = telegram_update.message.from_user
         user = store.select_user(tg_user.id)
         if user:
             self.user = user
