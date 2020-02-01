@@ -68,8 +68,19 @@ class Splatoon2:
         battle = SP2BattleResult.de_json(data)
         return battle
 
+    @log
+    def get_battle_share_url(self, battle_number):
+        data = self.post(f'/api/share/results/{battle_number}')
+        return data.get('url')
+
+    def post(self, path):
+        return self.request(path, 'POST')
+
     def get(self, path):
-        json_data = self._request('GET', path)
+        return self.request(path, 'GET')
+
+    def request(self, path, method):
+        json_data = self._request(method, path)
         try:
             decoded_s = json_data.decode('utf-8')
             data = json.loads(decoded_s)
@@ -103,7 +114,8 @@ class Splatoon2:
             'headers': {
                 'Cookie': f'iksm_session={self.iksm_session}; path=/; '
                           f'domain=.app.splatoon2.nintendo.net;',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         }
 
