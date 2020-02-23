@@ -207,10 +207,8 @@ class Controller:
         context.send_message('Todo')
 
     def menu_actions(self, update, context):
-        bot = context.bot
         query = update.callback_query
         chat_id = query.message.chat.id
-        user_id = query.from_user.id
         message_id = query.message.message_id
         menus = query.message.reply_markup
 
@@ -221,6 +219,8 @@ class Controller:
         data = command[0]
 
         if data == 'battle_like':
+            pusher_id = command[1]
+
             tql_button = menus.inline_keyboard[0][0]
             tql_text = tql_button.text
             tql_text = tql_text.replace('👍', '')
@@ -233,7 +233,7 @@ class Controller:
             menus.inline_keyboard[0][0] = tql_button
 
             # Reset last_message_id
-            job = self._task.get_job(user_id)
+            job = self._task.get_job(pusher_id)
             (battle_poll, splatoon2) = job.context
             if battle_poll.last_message_id == message_id:
                 battle_poll.last_message_id = 0

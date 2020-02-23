@@ -90,7 +90,7 @@ class Task:
 
             # Menus
             buttons = [[
-                InlineKeyboardButton('👍', callback_data='battle_like'),
+                InlineKeyboardButton('👍', callback_data=f'battle_like/{battle_poll.user.id}'),
                 InlineKeyboardButton('🖼', callback_data=f'battle_detail/{last_battle.battle_number}')
             ]]
             reply_markup = InlineKeyboardMarkup(buttons)
