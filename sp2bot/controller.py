@@ -243,7 +243,8 @@ class Controller:
             query.edit_message_reply_markup(menus)
 
         if data == 'battle_detail':
-            battle_id = command[1]
+            pusher_id = command[1]
+            battle_id = command[2]
 
             # Text detail
             # battle = Splatoon2(context.user.iksm_session).get_battle(battle_id)
@@ -253,7 +254,12 @@ class Controller:
             #                         parse_mode=MessageType.Markdown,
             #                         reply_markup=reply_markup)
 
+            # Get message pusher session
+            job = self._task.get_job(pusher_id)
+            (battle_poll, _) = job.context
+
             # Picture detail
-            url = Splatoon2(context.user.iksm_session).get_battle_share_url(battle_id)
+            url = Splatoon2(battle_poll.user.iksm_session) \
+                .get_battle_share_url(battle_id)
             return query.bot.send_photo(
                 chat_id, url, reply_to_message_id=message_id)
