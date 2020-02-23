@@ -264,7 +264,8 @@ def _battle_result_member(self_sp2_user, members):
     users = store.select_users_with_principal_ids(principal_ids)
 
     def format_member(member):
-        nickname = f'`{member.player.nickname}`'
+        escaped_nickname = member.player.nickname.replace('`', '`\``')
+        nickname = f'`{escaped_nickname}`'
 
         # Replace member nickname to telegram name
         # for u in reversed(users):
