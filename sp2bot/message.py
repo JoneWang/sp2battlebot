@@ -18,7 +18,7 @@ class Message:
     def login_url(self, url):
         text = '1.Navigate to this URL in your *desktop* browser:\n'
         text += f'[Click here to open the URL]({url})\n\n'
-        text += '2.Log in, *right click* the "Select this account" button, *copy the link address*, and type /geniksm `[link_address]`.'
+        text += '2.Log in, *right click* the "Select this account" button, *copy the link address*, and type /settoken `[link_address]`.'
 
         return text, MessageType.Markdown
 
@@ -38,23 +38,23 @@ class Message:
 
     @property
     def session_invalid(self):
-        text = 'The `iksm_session` is invalid.\n'
+        text = 'The `token` is invalid.\n'
         if self.context.chat.type != 'private':
-            text += 'To reset, send /setsession `[iksm_session]` to ' \
+            text += 'To reset, send /gettoken to ' \
                     f'@{self.context.bot_user.username}. '
         else:
-            text += 'To reset, type /setsession `[iksm_session]`.'
+            text += 'To reset, type /gettoken.'
 
         return text, MessageType.Markdown
 
     @property
     def setsession_must_private_message(self):
-        return f'Command /setsession must send to @{self.context.bot_user.username}.'
+        return f'Command /settoken must send to @{self.context.bot_user.username}.'
 
     @property
     def setsession_error(self):
         return 'Type error.\n' \
-               'Please type /setsession `[iksm_session]`.', MessageType.Markdown
+               'Please type /settoken `[link_address]`.', MessageType.Markdown
 
     @property
     def setsession_set_success(self):
@@ -63,15 +63,15 @@ class Message:
 
     @property
     def setsession_update_success(self):
-        return 'Success! You set a new iksm_session.'
+        return 'Success! You set a new token.'
 
     @property
     def setsession_set_fail(self):
-        return 'The `iksm_session` is invalid.', MessageType.Markdown
+        return 'The `token` is invalid.', MessageType.Markdown
 
     @property
     def setsession_invalid(self):
-        return 'The `iksm_session` is invalid.', MessageType.Markdown
+        return 'The `token` is invalid.', MessageType.Markdown
 
     @property
     def not_found_battle(self):
@@ -229,13 +229,22 @@ class Message:
     def help(self):
         return """
 /start - Start here.
-/setsession - Set iksm_session.
+/gettoken - Get token.
+/settoken - Set token.
 /last - Last battle info.
 /last50 - Show overview for last 50 battle.
-/pushhere - Startup and set push.
 /startpush - Startup battle push.
 /stoppush - Stop battle push.
 /help - Show help.
+"""
+
+    @property
+    def start(self):
+        return """
+Welcome to Splatoon2 Battle Bot.
+At first you must to use /gettoken to set token.
+
+More commands type /help.
 """
 
 

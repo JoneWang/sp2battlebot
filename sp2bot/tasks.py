@@ -7,7 +7,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from sp2bot import store
 from sp2bot.message import Message
-from sp2bot.splatoon2 import Splatoon2
+from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid
 
 
 class Task:
@@ -40,6 +40,13 @@ class Task:
 
         store.update_push_to_false(user_id)
 
+    def start_all_user_keep_alive_task(self):
+        job = self.job_queue.run_repeating(self._all_user_keep_alive,
+                                           interval=21600,
+                                           first=0,
+                                           name="keep_alive")
+        self._jobs.append(job)
+
     def load_and_run_all_push_job(self):
         for battle_poll in store.get_started_push_poll():
             self.start_battle_push(battle_poll)
@@ -70,7 +77,16 @@ class Task:
         bot = context.bot
 
         # Get last battle detail
-        battle_overview = splatoon2.get_battle_overview()
+        try:
+            battle_overview = splatoon2.get_battle_overview()
+        except Splatoon2SessionInvalid:
+            # Stop
+            self.stop_push(battle_poll.user.id)
+            return
+        except:
+            self.stop_push(battle_poll.user.id)
+            return
+
         if len(battle_overview.results) == 0:
             return
         last_battle = battle_overview.results[0]
@@ -90,8 +106,10 @@ class Task:
 
             # Menus
             buttons = [[
-                InlineKeyboardButton('👍', callback_data=f'battle_like/{battle_poll.user.id}'),
-                InlineKeyboardButton('🖼', callback_data=f'battle_detail/{battle_poll.user.id}/{last_battle.battle_number}')
+                InlineKeyboardButton('👍',
+                                     callback_data=f'battle_like/{battle_poll.user.id}'),
+                InlineKeyboardButton('🖼',
+                                     callback_data=f'battle_detail/{battle_poll.user.id}/{last_battle.battle_number}')
             ]]
             reply_markup = InlineKeyboardMarkup(buttons)
 
@@ -126,3 +144,20 @@ class Task:
             context.job.context = (battle_poll, splatoon2)
 
         store.update_battle_poll(battle_poll)
+
+    def _all_user_keep_alive(self, context: CallbackContext):
+        all_users = store.select_all_users()
+        for user in all_users:
+            if not user.iksm_session or user.iksm_session == '':
+                continue
+
+            # Get last battle detail
+            try:
+                splatoon2 = Splatoon2(user.iksm_session)
+                _ = splatoon2.get_battle_overview()
+            except Splatoon2SessionInvalid:
+                user.iksm_session = ''
+                store.update_user(user)
+                continue
+            except:
+                continue

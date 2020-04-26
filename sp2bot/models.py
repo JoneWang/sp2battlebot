@@ -29,7 +29,6 @@ class User(Model):
                  sp2_nickname=None,
                  sp2_style=None,
                  sp2_species=None,
-                 sp2_player_json=None,
                  sp2_user=None):
         self.id = id
         self.first_name = first_name
@@ -43,8 +42,7 @@ class User(Model):
             self.sp2_user = SP2Player(sp2_principal_id,
                                       nickname=sp2_nickname,
                                       style=sp2_style,
-                                      species=sp2_species,
-                                      json=sp2_player_json)
+                                      species=sp2_species,)
         else:
             self.sp2_user = sp2_user
 

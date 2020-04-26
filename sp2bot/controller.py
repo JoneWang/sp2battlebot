@@ -24,6 +24,10 @@ class Controller:
     def get_token(self, context):
         message = Message(context)
 
+        if context.message.chat.type != 'private':
+            context.send_message(message.setsession_must_private_message)
+            return
+
         login_url = Splatoon2Auth().get_login_url(context.user.id)
         if not login_url:
             context.send_message(message.splatoon_connect_error)
@@ -32,8 +36,12 @@ class Controller:
         context.send_message(message.login_url(login_url))
 
     @handler
-    def generate_iksm(self, context):
+    def generate_iksm_and_set(self, context):
         message = Message(context)
+
+        if context.message.chat.type != 'private':
+            context.send_message(message.setsession_must_private_message)
+            return
 
         token_data = context.args[0]
         wait_message_id = context.send_message(message.generate_iksm_wait)
@@ -51,11 +59,26 @@ class Controller:
             context.send_message(message.splatoon_connect_error)
             return
 
-        context.edit_message(message.iksm_session(iksm_session),
-                             wait_message_id)
+        self._set_iksm_session(
+            context,
+            iksm_session,
+            update_message_id=wait_message_id
+        )
 
+    # 备用命令，用于直接设置 iksm_session
     @handler
     def set_session(self, context):
+        message = Message(context)
+        args = context.args
+        if len(args) != 1:
+            context.send_message(message.setsession_error)
+            return
+
+        session = context.args[0]
+
+        self._set_iksm_session(context, session)
+
+    def _set_iksm_session(self, context, iksm_session, update_message_id=None):
         message = Message(context)
         first_set = True
 
@@ -63,13 +86,7 @@ class Controller:
             context.send_message(message.setsession_must_private_message)
             return
 
-        args = context.args
-        if len(args) != 1:
-            context.send_message(message.setsession_error)
-            return
-
-        session = context.args[0]
-        sp2_user = Splatoon2(session).get_user()
+        sp2_user = Splatoon2(iksm_session).get_user()
         if not sp2_user:
             context.send_message(message.setsession_set_fail)
             return
@@ -78,7 +95,7 @@ class Controller:
         if user and user.iksm_session:
             first_set = False
 
-        user.iksm_session = session
+        user.iksm_session = iksm_session
         user.sp2_user = sp2_user.player
 
         if first_set:
@@ -87,9 +104,14 @@ class Controller:
             store.update_user(user)
 
         if first_set:
-            context.send_message(message.setsession_set_success)
+            message_content = message.setsession_set_success
         else:
-            context.send_message(message.setsession_update_success)
+            message_content = message.setsession_update_success
+
+        if update_message_id:
+            context.edit_message(message_content, update_message_id)
+        else:
+            context.send_message(message_content)
 
     @check_session_handler
     def last(self, context):
@@ -156,6 +178,7 @@ class Controller:
             battle_poll, _ = job.context
 
             self._task.stop_push(context.user.id)
+            battle_poll.chat = context.chat
             self._task.start_battle_push(battle_poll)
 
             context.send_message(message.push_here)
@@ -204,7 +227,7 @@ class Controller:
 
     @handler
     def start(self, context):
-        context.send_message('Todo')
+        context.send_message(Message(context).start)
 
     def menu_actions(self, update, context):
         query = update.callback_query

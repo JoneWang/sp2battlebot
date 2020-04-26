@@ -11,8 +11,8 @@ from sp2bot.controller import Controller
 from sp2bot.tasks import Task
 import logging
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG,
+#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class Bot:
 
@@ -20,10 +20,6 @@ class Bot:
     def __init__(self):
         # Get token with configs
         token = configs.TELEGRAM_BOT_TOKEN
-        if not token:
-            print("TELEGRAM_BOT_TOKEN variable wasn't found in environment "
-                  "variables")
-            return
 
         # Create updater
         updater = Updater(token, use_context=True)
@@ -59,7 +55,7 @@ class Bot:
                                       )))
         dp.add_handler(CommandHandler('start', controller.start))
         dp.add_handler(CommandHandler('gettoken', controller.get_token))
-        dp.add_handler(CommandHandler('geniksm', controller.generate_iksm))
+        dp.add_handler(CommandHandler('settoken', controller.generate_iksm_and_set))
         dp.add_handler(CommandHandler('setsession', controller.set_session))
         dp.add_handler(CommandHandler('last', controller.last))
         dp.add_handler(CommandHandler('last50', controller.last50))
@@ -79,6 +75,9 @@ class Bot:
 
         # Run jobs in database
         task.load_and_run_all_push_job()
+
+        # Run keep-alive jobs
+        task.start_all_user_keep_alive_task()
 
         # Launch
         updater.start_polling()
