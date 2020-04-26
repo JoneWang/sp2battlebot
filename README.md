@@ -8,9 +8,9 @@ _* This project rewrite from [swift version](https://github.com/JoneWang/sp2batt
 
 ## Screenshot
 
-![last50](Screenshots/last50.png)
+![last50](screenshots/last50.png)
 
-![push](Screenshots/push.png)
+![push](screenshots/push.png)
 
 ## Start
 
