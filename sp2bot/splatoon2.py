@@ -204,7 +204,7 @@ class Splatoon2Auth:
             return None
 
         app_head = {
-            'User-Agent': 'OnlineLounge/1.5.2 NASDKAPI Android',
+            'User-Agent': 'OnlineLounge/1.6.1.2 NASDKAPI Android',
             'Accept-Language': 'en-US',
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -245,7 +245,7 @@ class Splatoon2Auth:
             'Content-Length': '439',
             'Accept': 'application/json',
             'Connection': 'Keep-Alive',
-            'User-Agent': 'OnlineLounge/1.5.2 NASDKAPI Android'
+            'User-Agent': 'OnlineLounge/1.6.1.2 NASDKAPI Android'
         }
 
         body = {
@@ -262,10 +262,11 @@ class Splatoon2Auth:
         # get user info
         try:
             app_head = {
-                'User-Agent': 'OnlineLounge/1.5.2 NASDKAPI Android',
+                'User-Agent': 'OnlineLounge/1.6.1.2 NASDKAPI Android',
                 'Accept-Language': 'en-US',
                 'Accept': 'application/json',
-                'Authorization': 'Bearer {}'.format(id_response["access_token"]),
+                'Authorization': 'Bearer {}'.format(
+                    id_response["access_token"]),
                 'Host': 'api.accounts.nintendo.com',
                 'Connection': 'Keep-Alive',
                 'Accept-Encoding': 'gzip'
@@ -289,9 +290,9 @@ class Splatoon2Auth:
         app_head = {
             'Host': 'api-lp1.znc.srv.nintendo.net',
             'Accept-Language': 'en-US',
-            'User-Agent': 'com.nintendo.znca/1.5.2 (Android/7.1.2)',
+            'User-Agent': 'com.nintendo.znca/1.6.1.2 (Android/7.1.2)',
             'Accept': 'application/json',
-            'X-ProductVersion': '1.5.2',
+            'X-ProductVersion': '1.6.1.2',
             'Content-Type': 'application/json; charset=utf-8',
             'Connection': 'Keep-Alive',
             'Authorization': 'Bearer',
@@ -302,11 +303,9 @@ class Splatoon2Auth:
 
         body = {}
         try:
-            idToken = id_response["id_token"]
+            idToken = id_response["access_token"]
 
-            flapg_response = self.call_flapg_api(idToken, guid, timestamp)
-            flapg_nso = flapg_response["login_nso"]
-            flapg_app = flapg_response["login_app"]
+            flapg_nso = self.call_flapg_api(idToken, guid, timestamp, "nso")
 
             parameter = {
                 'f': flapg_nso["f"],
@@ -330,13 +329,23 @@ class Splatoon2Auth:
         r = requests.post(url, headers=app_head, json=body)
         splatoon_token = json.loads(r.text)
 
+        try:
+            idToken = splatoon_token["result"]["webApiServerCredential"][
+                "accessToken"]
+            flapg_app = self.call_flapg_api(idToken, guid, timestamp, "app")
+        except:
+            print("Error from Nintendo (in Account/Login step):")
+            print(json.dumps(splatoon_token, indent=2))
+            # TODO:
+            return None
+
         # get splatoon access token
         try:
             app_head = {
                 'Host': 'api-lp1.znc.srv.nintendo.net',
-                'User-Agent': 'com.nintendo.znca/1.5.2 (Android/7.1.2)',
+                'User-Agent': 'com.nintendo.znca/1.6.1.2 (Android/7.1.2)',
                 'Accept': 'application/json',
-                'X-ProductVersion': '1.5.2',
+                'X-ProductVersion': '1.6.1.2',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive',
                 'Authorization': 'Bearer {}'.format(
@@ -374,7 +383,8 @@ class Splatoon2Auth:
                 'X-IsAppAnalyticsOptedIn': 'false',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Encoding': 'gzip,deflate',
-                'X-GameWebToken': splatoon_access_token["result"]["accessToken"],
+                'X-GameWebToken': splatoon_access_token["result"][
+                    "accessToken"],
                 'Accept-Language': 'en-US',
                 'X-IsAnalyticsOptedIn': 'false',
                 'Connection': 'keep-alive',
@@ -397,7 +407,8 @@ class Splatoon2Auth:
 
         # proceed normally
         try:
-            api_app_head = {'User-Agent': "splatnet2statink/{}".format(self.version)}
+            api_app_head = {
+                'User-Agent': "splatnet2statink/{}".format(self.version)}
             api_body = {'naIdToken': id_token, 'timestamp': timestamp}
             api_response = requests.post("https://elifessler.com/s2s/api/gen2",
                                          headers=api_app_head, data=api_body)
@@ -409,7 +420,7 @@ class Splatoon2Auth:
             # TODO:
             return None
 
-    def call_flapg_api(self, id_token, guid, timestamp):
+    def call_flapg_api(self, id_token, guid, timestamp, type):
         '''Passes in headers to the flapg API (Android emulator) and fetches the response.'''
 
         try:
@@ -418,14 +429,14 @@ class Splatoon2Auth:
                 'x-time': str(timestamp),
                 'x-guid': guid,
                 'x-hash': self.get_hash_from_s2s_api(id_token, timestamp),
-                'x-ver': '2',
-                'x-iid': ''.join(
-                    [random.choice(string.ascii_letters + string.digits) for n in
-                     range(8)])
+                'x-ver': '3',
+                'x-iid': type
             }
-            api_response = requests.get("https://flapg.com/ika2/api/login",
-                                        headers=api_app_head)
-            f = json.loads(api_response.text)
+            api_response = requests.get(
+                "https://flapg.com/ika2/api/login?public",
+                headers=api_app_head
+            )
+            f = json.loads(api_response.text)["result"]
             return f
         except:
             try:  # if api_response never gets set
@@ -444,4 +455,3 @@ class Splatoon2Auth:
 
             # TODO:
             return None
-

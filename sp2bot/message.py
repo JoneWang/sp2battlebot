@@ -18,7 +18,7 @@ class Message:
     def login_url(self, url):
         text = '1.Navigate to this URL in your *desktop* browser:\n'
         text += f'[Click here to open the URL]({url})\n\n'
-        text += '2.Log in, right click the "Select this person" button, copy the link address, and type /geniksm `[link_address]`.'
+        text += '2.Log in, *right click* the "Select this account" button, *copy the link address*, and type /geniksm `[link_address]`.'
 
         return text, MessageType.Markdown
 
