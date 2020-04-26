@@ -1,8 +1,16 @@
 # sp2battlebot
 
+Srouce code for [@Sp2BattleBot](https://t.me/Sp2BattleBot).
+
 A bot for telegram. Get Splatoon2 battle info in telegram.
 
 _* This project rewrite from [swift version](https://github.com/JoneWang/sp2battlebot-swift).*_
+
+## Screenshot
+
+![last50](Screenshots/last50.png)
+
+![push](Screenshots/push.png)
 
 ## Start
 
@@ -27,17 +35,21 @@ Run
 
 ## Command
 
-/setiksm - Set iksm_session.
+/start - Start here.
 
-/last - last50 - Show overview for last 50 battle.
+/gettoken - Get token.
 
-/last - Get last battle info.
+/settoken - Set token.
 
-/last [0~49] - Get last battle with index.
+/last - Last battle info.
 
-/startpush - Startup push service.
+/last50 - Show overview for last 50 battle.
 
-/stoppush - Stop push service.
+/startpush - Startup battle push.
+
+/stoppush - Stop battle push.
+
+/help - Show help.
 
 ## Require
 
