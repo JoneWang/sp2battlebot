@@ -281,6 +281,10 @@ class Controller:
             job = self._task.get_job(pusher_id)
             (battle_poll, _) = job.context
 
+            # Remove detail button
+            del menus.inline_keyboard[0][1]
+            query.edit_message_reply_markup(menus)
+
             # Picture detail
             url = Splatoon2(battle_poll.user.iksm_session) \
                 .get_battle_share_url(battle_id)
