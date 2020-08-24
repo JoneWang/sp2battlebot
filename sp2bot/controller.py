@@ -92,7 +92,7 @@ class Controller:
             return
 
         user = context.user
-        if user and user.iksm_session:
+        if user and user.iksm_session != None:
             first_set = False
 
         user.iksm_session = iksm_session
