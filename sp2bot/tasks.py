@@ -135,7 +135,7 @@ class Task:
             context.job.context = (battle_poll, splatoon2)
 
             # Delete
-            if last_message_id:
+            if last_message_id and battle_poll.chat.type != 'private':
                 bot.delete_message(battle_poll.chat.id, last_message_id)
 
         elif not last_battle_number:
