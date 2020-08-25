@@ -199,7 +199,10 @@ class Message:
 
         lines = list()
 
-        lines.append(f'Last 50 Battle For {tg_escape(self.context.user.display_name)}')
+        user = self.context.user
+        last_name = ' ' + user.last_name if user.last_name else ''
+        lines.append(
+            f'Last 50 Battle For [{user.first_name}{last_name}](tg://user?id={user.id})')
 
         lines.append(
             '*▸* `V/D: `*{0}/{1}*`({2:.0f}%)`'.format(summary.victory_count,
@@ -322,12 +325,3 @@ def _battle_result_member_detail(self_sp2_user, members):
                     nickname)
 
     return '\n'.join(map(format_member, members))
-
-
-def tg_escape(convert_str):
-    escape_list = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-',
-                   '=', '|', '{', '}', '.', '!']
-    for string in escape_list:
-        convert_str = convert_str.replace(string, f'\{string}')
-
-    return convert_str
