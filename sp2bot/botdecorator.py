@@ -23,7 +23,8 @@ def check_session_handler(func):
                     return
 
                 user.sp2_user = sp2_user.player
-                store.update_user(user)
+
+            store.update_user(user)
 
             if optional_args:
                 return func(self, bot_context, **optional_args)
@@ -41,6 +42,7 @@ def handler(func):
             return
 
         bot_context = BotContext(update, context)
+        store.update_user(bot_context.user)
         return func(self, bot_context)
 
     return wrapper

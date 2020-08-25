@@ -20,6 +20,11 @@ class BotContext:
         user = store.select_user(tg_user.id)
         if user:
             self.user = user
+
+            # Use newest info
+            self.user.first_name = tg_user.first_name
+            self.user.last_name = tg_user.last_name
+            self.user.username = tg_user.username
         else:
             self.user = User.from_tg_user(tg_user)
         self._bot_user = None
