@@ -174,27 +174,6 @@ class Message:
 
         return '\n'.join(lines), MessageType.Markdown
 
-    @staticmethod
-    def push_battle_more_detail(battle):
-        lines = list()
-
-        sp2_user = battle.player_result.player
-
-        my_team_is_top = battle.victory
-
-        my_or_other_members = [battle.my_team_members,
-                               battle.other_team_members]
-
-        lines.append(_battle_team_title(my_team_is_top, battle))
-        lines.append(_battle_result_member_detail(
-            sp2_user, my_or_other_members[not my_team_is_top]))
-
-        lines.append(_battle_team_title(not my_team_is_top, battle))
-        lines.append(_battle_result_member_detail(
-            sp2_user, my_or_other_members[my_team_is_top]))
-
-        return '\n'.join(lines), MessageType.Markdown
-
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
         summary = battle_overview.summary
@@ -301,32 +280,6 @@ def _battle_result_member(self_sp2_user, members):
                     member.assist_count,
                     member.death_count,
                     member.special_count,
-                    nickname)
-
-    return '\n'.join(map(format_member, members))
-
-
-def _battle_result_member_detail(self_sp2_user, members):
-    # Query member info from store
-    principal_ids = [m.player.principal_id for m in members]
-    users = store.select_users_with_principal_ids(principal_ids)
-
-    def format_member(member):
-        nickname = f'`{member.player.nickname}`'
-
-        # If self
-        if self_sp2_user and member.player.principal_id == self_sp2_user.principal_id:
-            nickname = f'{nickname} 👨🏻‍✈️'
-
-        avatar = '🐙' if member.player.species == SP2PlayerSpecies.Octolings else '🦑'
-
-        return '{}`{:>2}({})k` `{:>2}d {}sp` *({})* {}' \
-            .format(avatar,
-                    member.kill_count,
-                    member.assist_count,
-                    member.death_count,
-                    member.special_count,
-                    member.player.weapon.name,
                     nickname)
 
     return '\n'.join(map(format_member, members))

@@ -269,14 +269,6 @@ class Controller:
             pusher_id = command[1]
             battle_id = command[2]
 
-            # Text detail
-            # battle = Splatoon2(context.user.iksm_session).get_battle(battle_id)
-            # message = Message.push_battle_more_detail(battle)
-            # reply_markup = InlineKeyboardMarkup([[menus.inline_keyboard[0][0]]])
-            # query.edit_message_text(message[0],
-            #                         parse_mode=MessageType.Markdown,
-            #                         reply_markup=reply_markup)
-
             # Get message pusher session
             job = self._task.get_job(pusher_id)
             (battle_poll, _) = job.context
