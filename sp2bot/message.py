@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from telegram.utils.helpers import escape_markdown
+
 from sp2bot import store
 from sp2bot.splatoon2models import SP2BattleResult, SP2BattleType, \
     SP2PlayerSpecies
@@ -199,10 +201,9 @@ class Message:
 
         lines = list()
 
-        user = self.context.user
-        last_name = ' ' + user.last_name if user.last_name else ''
+        display_name = self.context.user.display_name
         lines.append(
-            f'Last 50 Battle For [{user.first_name}{last_name}](tg://user?id={user.id})')
+            f'Last 50 Battle For {escape_markdown(display_name)}')
 
         lines.append(
             '*▸* `V/D: `*{0}/{1}*`({2:.0f}%)`'.format(summary.victory_count,
