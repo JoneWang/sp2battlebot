@@ -203,7 +203,7 @@ class Message:
 
         display_name = self.context.user.display_name
         lines.append(
-            f'Last 50 Battle For {escape_markdown(display_name)}')
+            f'Last 50 Battle For {escape_markdown(display_name, version=2)}')
 
         lines.append(
             '*▸* `V/D: `*{0}/{1}*`({2:.0f}%)`'.format(summary.victory_count,
@@ -277,7 +277,11 @@ def _battle_result_member(self_sp2_user, members):
     users = store.select_users_with_principal_ids(principal_ids)
 
     def format_member(member):
-        escaped_nickname = member.player.nickname.replace('`', '`\``')
+        escaped_nickname = escape_markdown(
+            member.player.nickname,
+            version=2,
+            entity_type='code'
+        )
         nickname = f'`{escaped_nickname}`'
 
         # Replace member nickname to telegram name
