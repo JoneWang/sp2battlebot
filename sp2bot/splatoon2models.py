@@ -134,28 +134,20 @@ class SP2BattleResult(Model):
             battle['player_result'] = \
                 SP2BattleResultMember.de_json(battle.get('player_result'))
 
-        if battle['battle_type'] == SP2BattleType.Regular:
-            def member_sort(member):
-                return member.game_paint_point
-
-            sort_func = member_sort
-        else:
-            def member_sort(member):
-                return member.kill_count
-
-            sort_func = member_sort
+        def member_sort(member):
+            return member.sort_score
 
         if battle.get('my_team_members'):
             my_team_members = \
                 SP2BattleResultMember.de_list(battle.get('my_team_members'))
             my_team_members.append(battle['player_result'])
-            my_team_members.sort(key=sort_func, reverse=True)
+            my_team_members.sort(key=member_sort, reverse=True)
             battle['my_team_members'] = my_team_members
 
         if battle.get('other_team_members'):
             other_team_members = \
                 SP2BattleResultMember.de_list(battle.get('other_team_members'))
-            other_team_members.sort(key=sort_func, reverse=True)
+            other_team_members.sort(key=member_sort, reverse=True)
             battle['other_team_members'] = other_team_members
 
         return cls(**battle)
