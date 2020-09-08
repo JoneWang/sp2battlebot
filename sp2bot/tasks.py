@@ -95,17 +95,37 @@ class Task:
         if configs.DEBUG:
             print(f'Load battle: {last_battle.battle_number}')
 
-        if last_battle_number and \
-                last_battle_number != last_battle.battle_number:
+        # if last_battle_number and \
+        if last_battle_number != last_battle.battle_number + '2':
 
             print(f'Found new battle: {last_battle.battle_number}')
 
             battle = splatoon2.get_battle(last_battle.battle_number)
 
-            # Update stat
+            rank = battle.player_result.player.udemae
+
+            print(battle_poll.last_battle_udemae)
+            print(rank.name)
+            if battle_poll.last_battle_udemae and \
+                    battle_poll.last_battle_rule == battle.rule.key and \
+                    (battle_poll.last_battle_udemae.name != rank.name and \
+                    battle_poll.last_battle_udemae.s_plus_number != rank.s_plus_number or True):
+                content = Message.rank_changed(
+                    battle.player_result.player.nickname,
+                    battle_poll.last_battle_udemae,
+                    rank
+                )
+                bot.send_message(
+                        battle_poll.chat.id,
+                        content
+                    )
+
+            # Update poll
             battle_poll.game_count += 1
             battle_poll.game_victory_count += int(battle.victory)
-            battle_poll.last_battle_number = last_battle.battle_number
+            battle_poll.last_battle_number = battle.battle_number
+            battle_poll.last_battle_udemae = rank
+            battle_poll.last_battle_rule = battle.rule.key
             # Save updated to context
             context.job.context = (battle_poll, splatoon2)
 
@@ -119,8 +139,7 @@ class Task:
             reply_markup = InlineKeyboardMarkup(buttons)
 
             # Send push message
-            (content, message_type) = Message.push_battle(battle,
-                                                          battle_poll)
+            (content, message_type) = Message.push_battle(battle, battle_poll)
             parse_mode = message_type if message_type else None
 
             try:

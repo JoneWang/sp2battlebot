@@ -171,9 +171,10 @@ def get_started_push_poll():
 
     polls = []
     for u in us:
-        poll_dict = json.loads(u.battle_poll)
-        poll = BattlePoll.de_json(poll_dict)
-        polls.append(poll)
+        if u.battle_poll:
+            poll_dict = json.loads(u.battle_poll)
+            poll = BattlePoll.de_json(poll_dict)
+            polls.append(poll)
 
     return polls
 

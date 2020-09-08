@@ -69,12 +69,16 @@ class BattlePoll(Model):
                  chat,
                  last_message_id=None,
                  last_battle_number=None,
+                 last_battle_udemae=None,
+                 last_battle_rule=None,
                  game_count=0,
                  game_victory_count=0):
         self.chat = chat
         self.user = user
         self.last_message_id = last_message_id
         self.last_battle_number = last_battle_number
+        self.last_battle_udemae = last_battle_udemae
+        self.last_battle_rule = last_battle_rule
         self.game_count = game_count
         self.game_victory_count = game_victory_count
 
@@ -87,5 +91,6 @@ class BattlePoll(Model):
 
         data['user'] = User.de_json(data.get('user'))
         data['chat'] = Chat.de_json(data.get('chat'), None)
+        data['last_battle_udemae'] = SP2Player.Udemae.de_json(data.get('last_battle_udemae', None))
 
         return cls(**data)

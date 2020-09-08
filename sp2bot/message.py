@@ -116,12 +116,26 @@ class Message:
         return 'The battle info will be push here.\n' \
                'To stop, type /stoppush.'
 
+    @staticmethod
+    def rank_changed(nickname, old_rank, new_rank):
+        nickname = nickname.replace('`', '`\``')
+        old_rank_str = old_rank.s_plus_number if old_rank.s_plus_number else ''
+        new_rank_str = new_rank.s_plus_number if new_rank.s_plus_number else ''
+        return f'#{nickname}  {old_rank.name}{old_rank_str} -> ' \
+               f'{new_rank.name}{new_rank_str}'
+
     def last_battle(self, battle):
         lines = list()
 
         sp2_user = self.context.user.sp2_user
 
         lines.append(f"Battle ID:{battle.battle_number}")
+
+        power = f'  Power: {battle.estimate_gachi_power}' \
+            if battle.estimate_gachi_power else ''
+
+        rule_info = f'`{battle.rule.name}: {battle.player_result.player.udemae.name}{power}`'
+        lines.append(rule_info)
 
         my_team_is_top = battle.victory
 
@@ -158,6 +172,12 @@ class Message:
 
         battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
         lines.append(battle_stat)
+
+        power = f'  Power: {battle.estimate_gachi_power}' \
+            if battle.estimate_gachi_power else ''
+
+        rule_info = f'`{battle.rule.name}: {battle.player_result.player.udemae.name}{power}`'
+        lines.append(rule_info)
 
         my_team_is_top = battle.victory
 

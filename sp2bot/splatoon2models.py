@@ -85,10 +85,26 @@ class SP2BattleType:
 
 
 class SP2BattleResult(Model):
+    class Rule(Model):
+        def __init__(self, key, name):
+            self.key = key
+            self.name = name
+
+        @classmethod
+        def de_json(cls, data):
+            if not data:
+                return None
+            data = super(SP2BattleResult.Rule, cls).de_json(data)
+            rule = dict()
+            for key in data:
+                if key in ('key', 'name'):
+                    rule[key] = data[key]
+            return cls(**rule)
 
     def __init__(self,
                  battle_number,
                  battle_type,
+                 rule,
                  player_result,
                  victory,
                  my_team_members=None,
@@ -97,9 +113,11 @@ class SP2BattleResult(Model):
                  other_team_members=None,
                  other_team_percentage=None,
                  other_estimate_league_point=None,
+                 estimate_gachi_power=None,
                  ):
         self.battle_number = battle_number
         self.battle_type = battle_type
+        self.rule = rule
         self.player_result = player_result
         self.victory = victory
         self.my_team_members = my_team_members
@@ -108,6 +126,7 @@ class SP2BattleResult(Model):
         self.other_team_members = other_team_members
         self.other_team_percentage = other_team_percentage
         self.other_estimate_league_point = other_estimate_league_point
+        self.estimate_gachi_power = estimate_gachi_power
 
     @classmethod
     def de_json(cls, data):
@@ -127,8 +146,12 @@ class SP2BattleResult(Model):
                     'player_result', 'victory',
                     'my_team_members', 'my_team_percentage',
                     'my_estimate_league_point', 'other_team_members',
-                    'other_team_percentage', 'other_estimate_league_point'):
+                    'other_team_percentage', 'other_estimate_league_point',
+                    'rule', 'estimate_gachi_power'):
                 battle[key] = data[key]
+
+        if battle.get('rule'):
+            battle['rule'] = SP2BattleResult.Rule.de_json(battle.get('rule'))
 
         if battle.get('player_result'):
             battle['player_result'] = \
@@ -231,10 +254,33 @@ class SP2PlayerSpecies:
 
 
 class SP2Player(Model):
+    class Udemae(Model):
+        def __init__(self, name, s_plus_number=None):
+            self.name = name
+            self.s_plus_number = s_plus_number
 
-    def __init__(self, principal_id, nickname, style, species, weapon=None):
+        @classmethod
+        def de_json(cls, data):
+            if not data:
+                return None
+            data = super(SP2Player.Udemae, cls).de_json(data)
+
+            udemae = dict()
+            for key in data:
+                if key in ('name', 's_plus_number'):
+                    udemae[key] = data[key]
+            return cls(**udemae)
+
+    def __init__(self,
+                 principal_id,
+                 nickname,
+                 style,
+                 species,
+                 weapon=None,
+                 udemae=None):
         self.principal_id = principal_id
         self.nickname = nickname
+        self.udemae = udemae
         self.style = style
         self.species = species
         self.weapon = weapon
@@ -250,14 +296,15 @@ class SP2Player(Model):
             data['style'] = data.get('player_type').get('style')
             data['species'] = data.get('player_type').get('species')
 
-        battle = dict()
+        player = dict()
         for key in data:
             if key in ('principal_id', 'nickname', 'style', 'species'):
-                battle[key] = data[key]
+                player[key] = data[key]
 
-        battle['weapon'] = SP2PlayerWeapon.de_json(data.get('weapon'))
+        player['weapon'] = SP2PlayerWeapon.de_json(data.get('weapon'))
+        player['udemae'] = SP2Player.Udemae.de_json(data.get('udemae'))
 
-        return cls(**battle)
+        return cls(**player)
 
 
 class SP2PlayerWeapon(Model):
