@@ -6,8 +6,9 @@ from telegram.ext import CallbackContext
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from sp2bot import store
+from sp2bot.api import APIAuthError
 from sp2bot.message import Message
-from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid
+from sp2bot.splatoon2 import Splatoon2
 
 
 class Task:
@@ -79,7 +80,7 @@ class Task:
         # Get last battle detail
         try:
             battle_overview = splatoon2.get_battle_overview()
-        except Splatoon2SessionInvalid:
+        except APIAuthError:
             # Stop
             self.stop_push(battle_poll.user.id)
             return
@@ -155,7 +156,7 @@ class Task:
             try:
                 splatoon2 = Splatoon2(user.iksm_session)
                 _ = splatoon2.get_battle_overview()
-            except Splatoon2SessionInvalid:
+            except APIAuthError:
                 user.iksm_session = ''
                 store.update_user(user)
                 continue

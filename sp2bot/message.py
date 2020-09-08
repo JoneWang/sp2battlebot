@@ -230,6 +230,30 @@ At first you must to use /gettoken to set token.
 More commands type /help.
 """
 
+    def client_token(self, client_token):
+        return 'Your client token:\n' \
+               f'`{client_token}`', MessageType.Markdown
+
+    @property
+    def client_token_error(self):
+        return 'Client token get failed, please contact the bot creator.'
+
+    def reset_client_token_success(self, client_token):
+        return 'Client token reset succeed. Your new client token:\n' \
+               f'`{client_token}`', MessageType.Markdown
+
+    @property
+    def reset_client_token_error(self):
+        return 'Client token reset failed, please contact the bot creator.'
+
+    @property
+    def clienttoken_must_private_message(self):
+        return f'Command /clienttoken must send to @{self.context.bot_user.username}.'
+
+    @property
+    def resetclienttoken_must_private_message(self):
+        return f'Command /resetclienttoken must send to @{self.context.bot_user.username}.'
+
 
 def _battle_team_title(my_team: bool, battle: SP2BattleResult):
     if my_team:

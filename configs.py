@@ -6,3 +6,6 @@ TELEGRAM_BOT_TOKEN = ''
 
 # Bot administrator username, example: @Jone
 ADMINISTRATOR_USERNAME = ''
+
+# Sp2Battle API Token
+SP2BATTLE_API_TOKEN = ''
