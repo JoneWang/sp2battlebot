@@ -39,18 +39,22 @@ DBSession = sessionmaker(bind=engine)
 
 
 def insert_user(user):
-    UserTable(id=user.id,
-              username=user.username,
-              first_name=user.first_name,
-              last_name=user.last_name,
-              push=user.push,
-              iksm_session=user.iksm_session,
-              session_token=user.session_token,
-              sp2_principal_id=user.sp2_user.principal_id,
-              sp2_nickname=user.sp2_user.nickname,
-              sp2_style=user.sp2_user.style,
-              sp2_species=user.sp2_user.species,
-              )
+    session = DBSession()
+    u = UserTable(id=user.id,
+                  username=user.username,
+                  first_name=user.first_name,
+                  last_name=user.last_name,
+                  push=user.push,
+                  iksm_session=user.iksm_session,
+                  session_token=user.session_token,
+                  sp2_principal_id=user.sp2_user.principal_id,
+                  sp2_nickname=user.sp2_user.nickname,
+                  sp2_style=user.sp2_user.style,
+                  sp2_species=user.sp2_user.species,
+                  )
+
+    session.add(u)
+    session.close()
 
 
 def select_users_with_principal_ids(principal_ids):
@@ -160,7 +164,7 @@ def update_battle_poll(battle_poll):
 
 def get_started_push_poll():
     session = DBSession()
-    us = session.query(UserTable)\
+    us = session.query(UserTable) \
         .filter(UserTable.push == True).all()
     session.close()
 
