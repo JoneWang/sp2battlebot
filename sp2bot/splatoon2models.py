@@ -137,17 +137,35 @@ class SP2BattleResult(Model):
         def member_sort(member):
             return member.sort_score
 
+        def kill_sort(l_member, r_member):
+            l_total_kill = l_member.kill_count + l_member.assist_count
+            r_total_kill = r_member.kill_count + r_member.assist_count
+            if l_total_kill != r_total_kill:
+                return l_total_kill - r_total_kill
+            elif l_member.assist_count != r_member.assist_count:
+                return l_member.assist_count - r_member.assist_count
+            elif l_member.death_count != r_member.death_count:
+                return l_member.death_count - r_member.death_count
+            elif l_member.special_count != r_member.special_count:
+                return l_member.special_count - r_member.special_count
+
         if battle.get('my_team_members'):
             my_team_members = \
                 SP2BattleResultMember.de_list(battle.get('my_team_members'))
             my_team_members.append(battle['player_result'])
-            my_team_members.sort(key=member_sort, reverse=True)
+            if battle.get('battle_type') == 'league':
+                my_team_members.sort(key=kill_sort, reverse=True)
+            else:
+                my_team_members.sort(key=member_sort, reverse=True)
             battle['my_team_members'] = my_team_members
 
         if battle.get('other_team_members'):
             other_team_members = \
                 SP2BattleResultMember.de_list(battle.get('other_team_members'))
-            other_team_members.sort(key=member_sort, reverse=True)
+            if battle.get('battle_type') == 'league':
+                other_team_members.sort(key=kill_sort, reverse=True)
+            else:
+                other_team_members.sort(key=member_sort, reverse=True)
             battle['other_team_members'] = other_team_members
 
         return cls(**battle)
