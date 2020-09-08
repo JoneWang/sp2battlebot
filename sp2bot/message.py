@@ -251,18 +251,9 @@ def _battle_team_title(my_team: bool, battle: SP2BattleResult):
 
 
 def _battle_result_member(self_sp2_user, members):
-    # Query member info from store
-    principal_ids = [m.player.principal_id for m in members]
-    users = store.select_users_with_principal_ids(principal_ids)
-
     def format_member(member):
         escaped_nickname = member.player.nickname.replace('`', '`\``')
         nickname = f'`{escaped_nickname}`'
-
-        # Replace member nickname to telegram name
-        # for u in reversed(users):
-        #     if u.sp2_user.principal_id == member.player.principal_id:
-        #         nickname = u.display_name
 
         # If self
         if self_sp2_user and member.player.principal_id == self_sp2_user.principal_id:
