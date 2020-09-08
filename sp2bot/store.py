@@ -54,6 +54,7 @@ def insert_user(user):
                   )
 
     session.add(u)
+    session.commit()
     session.close()
 
 
