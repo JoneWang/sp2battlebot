@@ -95,8 +95,8 @@ class Task:
         if configs.DEBUG:
             print(f'Load battle: {last_battle.battle_number}')
 
-        # if last_battle_number and \
-        if last_battle_number != last_battle.battle_number + '2':
+        if last_battle_number and \
+                last_battle_number != last_battle.battle_number:
 
             print(f'Found new battle: {last_battle.battle_number}')
 
@@ -104,12 +104,10 @@ class Task:
 
             rank = battle.player_result.player.udemae
 
-            print(battle_poll.last_battle_udemae)
-            print(rank.name)
             if battle_poll.last_battle_udemae and \
                     battle_poll.last_battle_rule == battle.rule.key and \
-                    (battle_poll.last_battle_udemae.name != rank.name and \
-                    battle_poll.last_battle_udemae.s_plus_number != rank.s_plus_number or True):
+                    battle_poll.last_battle_udemae.name != rank.name and \
+                    battle_poll.last_battle_udemae.s_plus_number != rank.s_plus_number:
                 content = Message.rank_changed(
                     battle.player_result.player.nickname,
                     battle_poll.last_battle_udemae,
