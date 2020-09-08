@@ -5,6 +5,7 @@ from telegram.error import BadRequest
 from telegram.ext import CallbackContext
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+import configs
 from sp2bot import store
 from sp2bot.message import Message
 from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid
@@ -91,9 +92,13 @@ class Task:
             return
         last_battle = battle_overview.results[0]
 
-        print(f'Load battle: @{last_battle.battle_number}')
+        if configs.DEBUG:
+            print(f'Load battle: {last_battle.battle_number}')
+
         if last_battle_number and \
                 last_battle_number != last_battle.battle_number:
+
+            print(f'Found new battle: {last_battle.battle_number}')
 
             battle = splatoon2.get_battle(last_battle.battle_number)
 
