@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 
+# Debug
+DEBUG = os.environ.get('DEBUG', False)
+
 # Run environment: None or Heroku
 # Heroku
 RUN_ENVIRONMENT = os.environ.get('RUN_ENVIRONMENT')

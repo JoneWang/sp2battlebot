@@ -91,7 +91,7 @@ class Task:
             return
         last_battle = battle_overview.results[0]
 
-        print(last_battle.battle_number)
+        print(f'Load battle: @{last_battle.battle_number}')
         if last_battle_number and \
                 last_battle_number != last_battle.battle_number:
 
