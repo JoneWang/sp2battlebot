@@ -11,8 +11,9 @@ from sp2bot.controller import Controller
 from sp2bot.tasks import Task
 import logging
 
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 class Bot:
 
@@ -55,7 +56,8 @@ class Bot:
                                       )))
         dp.add_handler(CommandHandler('start', controller.start))
         dp.add_handler(CommandHandler('gettoken', controller.get_token))
-        dp.add_handler(CommandHandler('settoken', controller.generate_iksm_and_set))
+        dp.add_handler(
+            CommandHandler('settoken', controller.generate_iksm_and_set))
         dp.add_handler(CommandHandler('setsession', controller.set_session))
         dp.add_handler(CommandHandler('last', controller.last))
         dp.add_handler(CommandHandler('last50', controller.last50))
@@ -80,7 +82,17 @@ class Bot:
         task.start_all_user_keep_alive_task()
 
         # Launch
-        updater.start_polling()
+        if configs.RUN_ENVIRONMENT == 'Heroku':
+            updater.start_webhook(
+                listen="0.0.0.0",
+                port=int(configs.HEROKU_PORT),
+                url_path=configs.TELEGRAM_BOT_TOKEN
+            )
+            updater.bot.setWebhook(
+                configs.HEROKU_URL + configs.TELEGRAM_BOT_TOKEN
+            )
+        else:
+            updater.start_polling()
 
         self.updater = updater
 
