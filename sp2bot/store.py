@@ -152,7 +152,7 @@ def update_user(user):
 def update_battle_poll(battle_poll):
     session = DBSession()
     result = session.query(UserTable) \
-        .filter(UserTable.id == battle_poll.id)
+        .filter(UserTable.id == battle_poll.user.id)
     u = result.one() if result.count() > 0 else None
 
     if u:
