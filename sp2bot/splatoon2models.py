@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+from sp2bot.utils import functools
 from sp2bot.utils.model import Model
 
 
@@ -177,7 +178,7 @@ class SP2BattleResult(Model):
                 SP2BattleResultMember.de_list(battle.get('my_team_members'))
             my_team_members.append(battle['player_result'])
             if battle.get('battle_type') == 'league':
-                my_team_members.sort(key=kill_sort, reverse=True)
+                my_team_members.sort(key=functools.cmp_to_key(kill_sort), reverse=True)
             else:
                 my_team_members.sort(key=member_sort, reverse=True)
             battle['my_team_members'] = my_team_members
@@ -186,7 +187,7 @@ class SP2BattleResult(Model):
             other_team_members = \
                 SP2BattleResultMember.de_list(battle.get('other_team_members'))
             if battle.get('battle_type') == 'league':
-                other_team_members.sort(key=kill_sort, reverse=True)
+                other_team_members.sort(key=functools.cmp_to_key(kill_sort), reverse=True)
             else:
                 other_team_members.sort(key=member_sort, reverse=True)
             battle['other_team_members'] = other_team_members
