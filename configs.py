@@ -23,3 +23,6 @@ HEROKU_PORT = os.environ.get('PORT')
 
 # Heroku url
 HEROKU_URL = os.environ.get('HEROKU_URL')
+
+# Sp2Battle API Token
+SP2BATTLE_API_TOKEN = os.environ.get('SP2BATTLE_API_TOKEN')

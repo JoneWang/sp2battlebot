@@ -5,11 +5,13 @@ import re
 from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup
 from telegram.error import BadRequest
 
+from sp2bot.api import APIAuthError
 from sp2bot.botcontext import BotContext
 from sp2bot.botdecorator import handler, check_session_handler
 from sp2bot.message import Message, MessageType
 from sp2bot.models import BattlePoll
-from sp2bot.splatoon2 import Splatoon2, Splatoon2SessionInvalid, Splatoon2Auth
+from sp2bot.sp2battleapi import SP2BattleAPI
+from sp2bot.splatoon2 import Splatoon2, Splatoon2Auth
 from sp2bot import store
 from sp2bot.utils.type import try_to_int
 
@@ -127,7 +129,7 @@ class Controller:
 
         try:
             battle_overview = splatoon2.get_battle_overview()
-        except Splatoon2SessionInvalid:
+        except APIAuthError:
             context.send_message(message.session_invalid)
             return
 
@@ -155,7 +157,7 @@ class Controller:
 
         try:
             battle_overview = splatoon2.get_battle_overview()
-        except Splatoon2SessionInvalid:
+        except APIAuthError:
             context.send_message(message.session_invalid)
             return
 
@@ -282,3 +284,35 @@ class Controller:
                 .get_battle_share_url(battle_id)
             return query.bot.send_photo(
                 chat_id, url, reply_to_message_id=message_id)
+
+    @check_session_handler
+    def get_client_token(self, context):
+        message = Message(context)
+
+        if context.message.chat.type != 'private':
+            context.send_message(message.clienttoken_must_private_message)
+            return
+
+        client_token = SP2BattleAPI().get_client_token(
+            context.user.id, context.user.iksm_session)
+        if client_token:
+            context.send_message(
+                message.client_token(client_token))
+        else:
+            context.send_message(message.client_token_error)
+
+    @check_session_handler
+    def reset_client_token(self, context):
+        message = Message(context)
+
+        if context.message.chat.type != 'private':
+            context.send_message(message.resetclienttoken_must_private_message)
+            return
+
+        client_token = SP2BattleAPI() \
+            .reset_client_token(context.user.id, context.user.iksm_session)
+        if client_token:
+            context.send_message(
+                message.reset_client_token_success(client_token))
+        else:
+            context.send_message(message.reset_client_token_error)
