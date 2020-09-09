@@ -131,11 +131,15 @@ class Message:
 
         lines.append(f"Battle ID:{battle.battle_number}")
 
-        power = f'  Power:{battle.estimate_gachi_power}' \
-            if battle.estimate_gachi_power else ''
+        if battle.battle_type == SP2BattleType.Gachi:
+            power = f'  Power:{battle.estimate_gachi_power}' \
+                if battle.estimate_gachi_power else ''
 
-        rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
-        lines.append(rule_info)
+            rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
+            lines.append(rule_info)
+        elif battle.battle_type == SP2BattleType.League:
+            rule_info = f'`{battle.rule.name}`'
+            lines.append(rule_info)
 
         my_team_is_top = battle.victory
 
@@ -173,11 +177,15 @@ class Message:
         battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
         lines.append(battle_stat)
 
-        power = f'  Power:{battle.estimate_gachi_power}' \
-            if battle.estimate_gachi_power else ''
+        if battle.battle_type == SP2BattleType.Gachi:
+            power = f'  Power:{battle.estimate_gachi_power}' \
+                if battle.estimate_gachi_power else ''
 
-        rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
-        lines.append(rule_info)
+            rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
+            lines.append(rule_info)
+        elif battle.battle_type == SP2BattleType.League:
+            rule_info = f'`{battle.rule.name}`'
+            lines.append(rule_info)
 
         my_team_is_top = battle.victory
 
