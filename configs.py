@@ -23,9 +23,12 @@ DATABASE_URI = os.environ.get('DATABASE_URL')
 # About webhook: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks
 WEBHOOK_MODE = os.environ.get('WEBHOOK_MODE', False)
 
+# Listen address
+WEBHOOK_LISTEN = os.environ.get('WEBHOOK_LISTEN', '127.0.0.1')
+
 # Webhook port
-# Default is 80.
-WEBHOOK_PORT = os.environ.get('WEBHOOK_PORT', 80)
+# Default is 5000.
+WEBHOOK_PORT = os.environ.get('WEBHOOK_PORT', 5000)
 
 # Webhook port
 WEBHOOK_URL = os.environ.get('WEBHOOK_URL')
