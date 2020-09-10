@@ -89,7 +89,7 @@ class Bot:
         # Launch
         if configs.WEBHOOK_MODE:
             updater.start_webhook(
-                listen="0.0.0.0",
+                listen=configs.WEBHOOK_LISTEN,
                 port=int(configs.WEBHOOK_PORT),
                 url_path=configs.WEBHOOK_URL
             )
