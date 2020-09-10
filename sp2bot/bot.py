@@ -85,14 +85,14 @@ class Bot:
         task.start_all_user_keep_alive_task()
 
         # Launch
-        if configs.RUN_ENVIRONMENT == 'Heroku':
+        if configs.WEBHOOK_MODE:
             updater.start_webhook(
                 listen="0.0.0.0",
-                port=int(configs.HEROKU_PORT),
-                url_path=configs.TELEGRAM_BOT_TOKEN
+                port=int(configs.WEBHOOK_PORT),
+                url_path=configs.WEBHOOK_URL
             )
             updater.bot.setWebhook(
-                configs.HEROKU_URL + configs.TELEGRAM_BOT_TOKEN
+                configs.WEBHOOK_URL + '/' + configs.TELEGRAM_BOT_TOKEN
             )
         else:
             updater.start_polling()
