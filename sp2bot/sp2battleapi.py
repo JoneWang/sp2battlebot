@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from configs import SP2BATTLE_API_TOKEN
+import configs
 from sp2bot.api import API, APIAuthError
 from telegram.bot import log
 
@@ -9,8 +9,8 @@ class SP2BattleAPI(API):
 
     def __init__(self):
         super(SP2BattleAPI, self).__init__()
-        self._base_url = 'https://sp2battleapi.herokuapp.com'
-        self._headers = {'X-Access-Token': SP2BATTLE_API_TOKEN}
+        self._base_url = configs.SP2BATTLE_API_ADDRESS
+        self._headers = {'X-Access-Token': configs.SP2BATTLE_API_TOKEN}
 
     @log
     def get_client_token(self, user_id, iksm_session):

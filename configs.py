@@ -16,8 +16,11 @@ ADMINISTRATOR_USERNAME = os.environ.get('ADMINISTRATOR_USERNAME')
 # More info: https://docs.sqlalchemy.org/en/13/dialects/
 DATABASE_URI = os.environ.get('DATABASE_URL')
 
-# Sp2Battle API Token
+# imink API Token
 SP2BATTLE_API_TOKEN = os.environ.get('SP2BATTLE_API_TOKEN')
+
+# imink API address
+SP2BATTLE_API_ADDRESS = os.environ.get('SP2BATTLE_API_ADDRESS')
 
 # Webhook
 # Enable webhook mode.
