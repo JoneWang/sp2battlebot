@@ -20,7 +20,7 @@ DATABASE_URI = os.environ.get('DATABASE_URL')
 SP2BATTLE_API_TOKEN = os.environ.get('SP2BATTLE_API_TOKEN')
 
 # imink API address
-SP2BATTLE_API_ADDRESS = os.environ.get('SP2BATTLE_API_ADDRESS')
+IMINK_API_URL = os.environ.get('IMINK_API_URL')
 
 # Webhook
 # Enable webhook mode.

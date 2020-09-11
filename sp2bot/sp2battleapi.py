@@ -9,7 +9,7 @@ class SP2BattleAPI(API):
 
     def __init__(self):
         super(SP2BattleAPI, self).__init__()
-        self._base_url = configs.SP2BATTLE_API_ADDRESS
+        self._base_url = configs.IMINK_API_URL
         self._headers = {'X-Access-Token': configs.SP2BATTLE_API_TOKEN}
 
     @log
