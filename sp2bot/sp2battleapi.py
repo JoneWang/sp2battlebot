@@ -32,7 +32,7 @@ class SP2BattleAPI(API):
         try:
             data = self.post(f'/reset_client_token',
                              data={
-                                 'user_id': user_id,
+                                 'telegram_id': user_id,
                                  'iksm_session': iksm_session,
                                  'sp2_principal_id': sp2_principal_id
                              })
