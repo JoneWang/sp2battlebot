@@ -169,9 +169,13 @@ class SP2BattleResult(Model):
             elif l_member.assist_count != r_member.assist_count:
                 return l_member.assist_count - r_member.assist_count
             elif l_member.death_count != r_member.death_count:
-                return l_member.death_count - r_member.death_count
+                return r_member.death_count - l_member.death_count
             elif l_member.special_count != r_member.special_count:
                 return l_member.special_count - r_member.special_count
+            elif l_member.game_paint_point != r_member.game_paint_point:
+                return l_member.game_paint_point - r_member.game_paint_point
+            else:
+                return 0
 
         if battle.get('my_team_members'):
             my_team_members = \
