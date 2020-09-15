@@ -13,10 +13,13 @@ class SP2BattleAPI(API):
         self._headers = {'X-Access-Token': configs.SP2BATTLE_API_TOKEN}
 
     @log
-    def get_client_token(self, user_id, iksm_session):
+    def get_client_token(self, user_id, iksm_session, sp2_principal_id):
         try:
             data = self.get(
-                f'/client_token?user_id={user_id}&iksm_session={iksm_session}')
+                f'/client_token?telegram_id={user_id}&'
+                f'iksm_session={iksm_session}&'
+                f'sp2_principal_id={sp2_principal_id}'
+            )
             if data['code'] == 0:
                 return data['data']
             else:
@@ -25,12 +28,13 @@ class SP2BattleAPI(API):
             return None
 
     @log
-    def reset_client_token(self, user_id, iksm_session):
+    def reset_client_token(self, user_id, iksm_session, sp2_principal_id):
         try:
             data = self.post(f'/reset_client_token',
                              data={
                                  'user_id': user_id,
-                                 'iksm_session': iksm_session
+                                 'iksm_session': iksm_session,
+                                 'sp2_principal_id': sp2_principal_id
                              })
             if data['code'] == 0:
                 return data['data']
