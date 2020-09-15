@@ -296,7 +296,7 @@ class Controller:
         client_token = SP2BattleAPI().get_client_token(
             context.user.id,
             context.user.iksm_session,
-            context.user.principal_id
+            context.user.sp2_user.principal_id
         )
         if client_token:
             context.send_message(
@@ -315,7 +315,7 @@ class Controller:
         client_token = SP2BattleAPI().reset_client_token(
             context.user.id,
             context.user.iksm_session,
-            context.user.principal_id
+            context.user.sp2_user.principal_id
         )
         if client_token:
             context.send_message(
