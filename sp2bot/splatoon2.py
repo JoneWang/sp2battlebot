@@ -138,7 +138,7 @@ class Splatoon2Auth:
             return None
 
         app_head = {
-            'User-Agent': 'OnlineLounge/1.8.0 NASDKAPI Android',
+            'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android',
             'Accept-Language': 'en-US',
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -179,7 +179,7 @@ class Splatoon2Auth:
             'Content-Length': '439',
             'Accept': 'application/json',
             'Connection': 'Keep-Alive',
-            'User-Agent': 'OnlineLounge/1.8.0 NASDKAPI Android'
+            'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android'
         }
 
         body = {
@@ -196,7 +196,7 @@ class Splatoon2Auth:
         # get user info
         try:
             app_head = {
-                'User-Agent': 'OnlineLounge/1.8.0 NASDKAPI Android',
+                'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android',
                 'Accept-Language': 'en-US',
                 'Accept': 'application/json',
                 'Authorization': 'Bearer {}'.format(
@@ -224,9 +224,9 @@ class Splatoon2Auth:
         app_head = {
             'Host': 'api-lp1.znc.srv.nintendo.net',
             'Accept-Language': 'en-US',
-            'User-Agent': 'com.nintendo.znca/1.8.0 (Android/7.1.2)',
+            'User-Agent': 'com.nintendo.znca/1.9.0 (Android/7.1.2)',
             'Accept': 'application/json',
-            'X-ProductVersion': '1.8.0',
+            'X-ProductVersion': '1.9.0',
             'Content-Type': 'application/json; charset=utf-8',
             'Connection': 'Keep-Alive',
             'Authorization': 'Bearer',
@@ -277,9 +277,9 @@ class Splatoon2Auth:
         try:
             app_head = {
                 'Host': 'api-lp1.znc.srv.nintendo.net',
-                'User-Agent': 'com.nintendo.znca/1.8.0 (Android/7.1.2)',
+                'User-Agent': 'com.nintendo.znca/1.9.0 (Android/7.1.2)',
                 'Accept': 'application/json',
-                'X-ProductVersion': '1.8.0',
+                'X-ProductVersion': '1.9.0',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive',
                 'Authorization': 'Bearer {}'.format(
