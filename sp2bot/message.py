@@ -306,6 +306,6 @@ def _get_rule_info(battle):
     elif battle.battle_type == SP2BattleType.League:
         max_league_point = ''
         if battle.max_league_point > 0:
-            max_league_point = f'\nmax_league_point: {max_league_point}'
+            max_league_point = f'\nmax_league_point: {battle.max_league_point}'
         rule_info = f'`{battle.rule.name}, {battle.game_mode}{max_league_point}`'
     return rule_info
