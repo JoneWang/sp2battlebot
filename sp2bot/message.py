@@ -132,13 +132,13 @@ class Message:
         lines.append(f"Battle ID:{battle.battle_number}")
 
         if battle.battle_type == SP2BattleType.Gachi:
-            power = f'  Power:{battle.estimate_gachi_power}' \
+            power = f'  Power: {battle.estimate_gachi_power}' \
                 if battle.estimate_gachi_power else ''
 
             rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
             lines.append(rule_info)
         elif battle.battle_type == SP2BattleType.League:
-            rule_info = f'`{battle.rule.name}`'
+            rule_info = f'`{battle.rule.name}, {battle.game_mode}`'
             lines.append(rule_info)
 
         my_team_is_top = battle.victory
@@ -287,14 +287,12 @@ def _battle_result_member(self_sp2_user, members):
         if self_sp2_user and member.player.principal_id == self_sp2_user.principal_id:
             nickname = f'{nickname} 👨🏻‍✈️'
 
-        avatar = '🐙' if member.player.species == SP2PlayerSpecies.Octolings else '🦑'
-
-        return '{}`{:>2}({})k` `{:>2}d {}sp` {}' \
-            .format(avatar,
-                    member.kill_count,
+        return '`{:<2}|{:>2} {:>2}+{}k`  `{:>2}d {:>4.1f}  ` {}' \
+            .format(member.player.udemae.name, member.kill_count,
+                    member.kill_count - member.assist_count,
                     member.assist_count,
                     member.death_count,
-                    member.special_count,
+                    (member.kill_count - member.assist_count) / member.death_count if member.death_count else 99.0,
                     nickname)
 
     return '\n'.join(map(format_member, members))
