@@ -107,6 +107,7 @@ class SP2BattleResult(Model):
                  player_result,
                  victory,
                  game_mode=None,
+                 max_league_point=None,
                  my_team_members=None,
                  my_team_percentage=None,
                  my_estimate_league_point=None,
@@ -121,6 +122,7 @@ class SP2BattleResult(Model):
         self.player_result = player_result
         self.victory = victory
         self.game_mode = game_mode
+        self.max_league_point = max_league_point
         self.my_team_members = my_team_members
         self.my_team_percentage = my_team_percentage
         self.my_estimate_league_point = my_estimate_league_point
@@ -145,7 +147,7 @@ class SP2BattleResult(Model):
         for key in data:
             if key in (
                     'battle_number', 'battle_type',
-                    'player_result', 'victory',
+                    'player_result', 'victory', 'max_league_point',
                     'my_team_members', 'my_team_percentage',
                     'my_estimate_league_point', 'other_team_members',
                     'other_team_percentage', 'other_estimate_league_point',
