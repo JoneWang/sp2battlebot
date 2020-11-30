@@ -199,12 +199,12 @@ More commands type /help.
             f'{player["nickname"]}, {rank}',
             f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
             f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'掉线次数： {record["recent_disconnect_count"]}',
             f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
             f'双排记录： {player["max_league_point_pair"]}',
             f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
             f'四排记录： {player["max_league_point_team"]}',
             f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
-            f'掉线次数： {record["recent_disconnect_count"]}',
             f'开始时间： {dt.fromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S}',
             f'更新时间： {dt.fromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S}'
         ]
