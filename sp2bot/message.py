@@ -205,8 +205,8 @@ More commands type /help.
             f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
             f'四排记录： {player["max_league_point_team"]}',
             f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
-            f'开始时间： {dt.fromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S}',
-            f'更新时间： {dt.fromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S}'
+            f'开始时间： {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
+            f'更新时间： {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
         ]
         lines = [f'`{l}`' for l in lines]
         return '\n'.join(lines), MessageType.Markdown
