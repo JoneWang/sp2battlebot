@@ -57,6 +57,13 @@ class Splatoon2:
             return None
 
     @log
+    def get_user_info(self):
+        try:
+            return self.get('/api/records')
+        except Splatoon2SessionInvalid:
+            return None
+
+    @log
     def get_battle_overview(self):
         data = self.get('/api/results')
         battle_overview = SP2BattleOverview.de_json(data)

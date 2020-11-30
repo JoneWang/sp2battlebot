@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime as dt
 from telegram.utils.helpers import escape_markdown
 
 from sp2bot import store
@@ -126,6 +127,7 @@ class Message:
 /last50 - Show overview for last 50 battle.
 /startpush - Startup battle push.
 /stoppush - Stop battle push.
+/get_user_info - Get user.
 /help - Show help.
 """
 
@@ -182,6 +184,32 @@ More commands type /help.
 
     def last_battle(self, battle):
         return _battle_result_msg(battle, self.context.user.sp2_user)
+
+    @staticmethod
+    def user_info(info):
+        record = info["records"]
+        player = info["records"]["player"]
+        rank = str(player["player_rank"])
+        if player.get("star_rank"):
+            rank = f'(*{player["star_rank"]}) ' + rank
+
+        lp = record["league_stats"]["pair"]
+        lt = record["league_stats"]["team"]
+        lines = [
+            f'{player["nickname"]}, {rank}',
+            f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
+            f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
+            f'双排记录： {player["max_league_point_pair"]}',
+            f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
+            f'四排记录： {player["max_league_point_team"]}',
+            f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
+            f'掉线次数： {record["recent_disconnect_count"]}',
+            f'开始时间： {dt.fromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S}',
+            f'更新时间： {dt.fromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S}'
+        ]
+        lines = [f'`{l}`' for l in lines]
+        return '\n'.join(lines), MessageType.Markdown
 
     @staticmethod
     def push_battle(battle, battle_poll):
