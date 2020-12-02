@@ -75,6 +75,7 @@ class Bot:
         dp.add_handler(CommandHandler('help', controller.help))
         dp.add_handler(CommandHandler('clienttoken', controller.get_client_token))
         dp.add_handler(CommandHandler('resetclienttoken', controller.reset_client_token))
+        dp.add_handler(CommandHandler('me', controller.get_user_info))
         dp.add_handler(CallbackQueryHandler(controller.menu_actions))
 
         # Set task job
