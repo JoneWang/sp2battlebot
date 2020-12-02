@@ -127,7 +127,7 @@ class Message:
 /last50 - Show overview for last 50 battle.
 /startpush - Startup battle push.
 /stoppush - Stop battle push.
-/get_user_info - Get user.
+/me - Get user.
 /help - Show help.
 """
 
