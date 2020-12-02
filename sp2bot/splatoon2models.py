@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import json
 
-from sp2bot.utils import functools
 from sp2bot.utils.model import Model
 
 
@@ -108,6 +106,8 @@ class SP2BattleResult(Model):
                  rule,
                  player_result,
                  victory,
+                 game_mode=None,
+                 max_league_point=None,
                  my_team_members=None,
                  my_team_percentage=None,
                  my_estimate_league_point=None,
@@ -121,6 +121,8 @@ class SP2BattleResult(Model):
         self.rule = rule
         self.player_result = player_result
         self.victory = victory
+        self.game_mode = game_mode
+        self.max_league_point = max_league_point
         self.my_team_members = my_team_members
         self.my_team_percentage = my_team_percentage
         self.my_estimate_league_point = my_estimate_league_point
@@ -141,15 +143,21 @@ class SP2BattleResult(Model):
         data['battle_type'] = data.get('type')
 
         battle = dict()
+        battle['game_mode'] = data["game_mode"]['key']
         for key in data:
             if key in (
                     'battle_number', 'battle_type',
-                    'player_result', 'victory',
+                    'player_result', 'victory', 'max_league_point',
                     'my_team_members', 'my_team_percentage',
                     'my_estimate_league_point', 'other_team_members',
                     'other_team_percentage', 'other_estimate_league_point',
                     'rule', 'estimate_gachi_power'):
                 battle[key] = data[key]
+
+        if data.get("x_power"):
+            battle['estimate_gachi_power'] = f"{data['x_power']}\nestimate_x_power: {data['estimate_x_power']}"
+        elif data.get("estimate_x_power"):
+            battle['estimate_gachi_power'] = f"计策中...\nestimate_x_power: {data['estimate_x_power']}"
 
         if battle.get('rule'):
             battle['rule'] = SP2BattleResult.Rule.de_json(battle.get('rule'))
@@ -158,43 +166,18 @@ class SP2BattleResult(Model):
             battle['player_result'] = \
                 SP2BattleResultMember.de_json(battle.get('player_result'))
 
-        def member_sort(member):
-            return member.sort_score
+        for k in ['my_team_members', 'other_team_members']:
+            if not battle.get(k):
+                continue
 
-        def kill_sort(l_member, r_member):
-            l_total_kill = l_member.kill_count + l_member.assist_count
-            r_total_kill = r_member.kill_count + r_member.assist_count
-            if l_total_kill != r_total_kill:
-                return l_total_kill - r_total_kill
-            elif l_member.assist_count != r_member.assist_count:
-                return l_member.assist_count - r_member.assist_count
-            elif l_member.death_count != r_member.death_count:
-                return r_member.death_count - l_member.death_count
-            elif l_member.special_count != r_member.special_count:
-                return l_member.special_count - r_member.special_count
-            elif l_member.game_paint_point != r_member.game_paint_point:
-                return l_member.game_paint_point - r_member.game_paint_point
-            else:
-                return 0
-
-        if battle.get('my_team_members'):
-            my_team_members = \
-                SP2BattleResultMember.de_list(battle.get('my_team_members'))
-            my_team_members.append(battle['player_result'])
+            team_members = SP2BattleResultMember.de_list(battle.get(k))
+            if k == 'my_team_members':
+                team_members.append(battle['player_result'])
             if battle.get('battle_type') == 'league':
-                my_team_members.sort(key=functools.cmp_to_key(kill_sort), reverse=True)
+                team_members.sort(key=lambda x: (x.kill_count, x.kill_count - x.assist_count), reverse=True)
             else:
-                my_team_members.sort(key=member_sort, reverse=True)
-            battle['my_team_members'] = my_team_members
-
-        if battle.get('other_team_members'):
-            other_team_members = \
-                SP2BattleResultMember.de_list(battle.get('other_team_members'))
-            if battle.get('battle_type') == 'league':
-                other_team_members.sort(key=functools.cmp_to_key(kill_sort), reverse=True)
-            else:
-                other_team_members.sort(key=member_sort, reverse=True)
-            battle['other_team_members'] = other_team_members
+                team_members.sort(key=lambda x: x.sort_score, reverse=True)
+            battle[k] = team_members
 
         return cls(**battle)
 

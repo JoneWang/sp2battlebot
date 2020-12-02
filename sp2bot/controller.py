@@ -225,6 +225,19 @@ class Controller:
     def help(self, context):
         context.send_message(Message(context).help)
 
+    @check_session_handler
+    def get_user_info(self, context):
+        message = Message(context)
+        splatoon2 = Splatoon2(context.user.iksm_session)
+
+        try:
+            user_info = splatoon2.get_user_info()
+        except Splatoon2SessionInvalid:
+            context.send_message(message.session_invalid)
+            return
+
+        context.send_message(message.user_info(user_info))
+
     @handler
     def start(self, context):
         context.send_message(Message(context).start)

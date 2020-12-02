@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime as dt
 from telegram.utils.helpers import escape_markdown
 
 from sp2bot import store
@@ -116,6 +117,29 @@ class Message:
         return 'The battle info will be push here.\n' \
                'To stop, type /stoppush.'
 
+    @property
+    def help(self):
+        return """
+/start - Start here.
+/gettoken - Get token.
+/settoken - Set token.
+/last - Last battle info.
+/last50 - Show overview for last 50 battle.
+/startpush - Startup battle push.
+/stoppush - Stop battle push.
+/me - Get user.
+/help - Show help.
+"""
+
+    @property
+    def start(self):
+        return """
+Welcome to Splatoon2 Battle Bot.
+At first you must to use /gettoken to set token.
+
+More commands type /help.
+"""
+
     @staticmethod
     def rank_changed(nickname, old_rank, new_rank):
         nickname = nickname.replace('`', '`\``')
@@ -123,84 +147,6 @@ class Message:
         new_rank_str = new_rank.s_plus_number if new_rank.s_plus_number else ''
         return f'#{nickname}  {old_rank.name}{old_rank_str} -> ' \
                f'{new_rank.name}{new_rank_str}'
-
-    def last_battle(self, battle):
-        lines = list()
-
-        sp2_user = self.context.user.sp2_user
-
-        lines.append(f"Battle ID:{battle.battle_number}")
-
-        if battle.battle_type == SP2BattleType.Gachi:
-            power = f'  Power:{battle.estimate_gachi_power}' \
-                if battle.estimate_gachi_power else ''
-
-            rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
-            lines.append(rule_info)
-        elif battle.battle_type == SP2BattleType.League:
-            rule_info = f'`{battle.rule.name}`'
-            lines.append(rule_info)
-
-        my_team_is_top = battle.victory
-
-        my_or_other_members = [battle.my_team_members,
-                               battle.other_team_members]
-
-        lines.append(_battle_team_title(my_team_is_top, battle))
-        lines.append(_battle_result_member(
-            sp2_user, my_or_other_members[not my_team_is_top]))
-
-        lines.append(_battle_team_title(not my_team_is_top, battle))
-        lines.append(_battle_result_member(
-            sp2_user, my_or_other_members[my_team_is_top]))
-
-        return '\n'.join(lines), MessageType.Markdown
-
-    @staticmethod
-    def push_battle(battle, battle_poll):
-        lines = list()
-
-        sp2_user = battle_poll.user.sp2_user
-
-        if battle.victory:
-            lines.append('我们赢啦！')
-        else:
-            lines.append('呜呜呜~输了不好意思见人了~')
-
-        victory_rate = 0
-        if battle_poll.game_count > 0:
-            victory_rate = battle_poll.game_victory_count / battle_poll.game_count * 100
-
-        victory_count = battle_poll.game_victory_count
-        defeat_count = battle_poll.game_count - battle_poll.game_victory_count
-
-        battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
-        lines.append(battle_stat)
-
-        if battle.battle_type == SP2BattleType.Gachi:
-            power = f'  Power:{battle.estimate_gachi_power}' \
-                if battle.estimate_gachi_power else ''
-
-            rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
-            lines.append(rule_info)
-        elif battle.battle_type == SP2BattleType.League:
-            rule_info = f'`{battle.rule.name}`'
-            lines.append(rule_info)
-
-        my_team_is_top = battle.victory
-
-        my_or_other_members = [battle.my_team_members,
-                               battle.other_team_members]
-
-        lines.append(_battle_team_title(my_team_is_top, battle))
-        lines.append(_battle_result_member(
-            sp2_user, my_or_other_members[not my_team_is_top]))
-
-        lines.append(_battle_team_title(not my_team_is_top, battle))
-        lines.append(_battle_result_member(
-            sp2_user, my_or_other_members[my_team_is_top]))
-
-        return '\n'.join(lines), MessageType.Markdown
 
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
@@ -236,27 +182,85 @@ class Message:
 
         return '\n'.join(lines), MessageType.Markdown
 
-    @property
-    def help(self):
-        return """
-/start - Start here.
-/gettoken - Get token.
-/settoken - Set token.
-/last - Last battle info.
-/last50 - Show overview for last 50 battle.
-/startpush - Startup battle push.
-/stoppush - Stop battle push.
-/help - Show help.
-"""
+    def last_battle(self, battle):
+        return _battle_result_msg(battle, self.context.user.sp2_user)
 
-    @property
-    def start(self):
-        return """
-Welcome to Splatoon2 Battle Bot.
-At first you must to use /gettoken to set token.
+    @staticmethod
+    def user_info(info):
+        record = info["records"]
+        player = info["records"]["player"]
+        rank = str(player["player_rank"])
+        if player.get("star_rank"):
+            rank = f'(*{player["star_rank"]}) ' + rank
 
-More commands type /help.
-"""
+        lp = record["league_stats"]["pair"]
+        lt = record["league_stats"]["team"]
+        lines = [
+            f'{player["nickname"]}, {rank}',
+            f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
+            f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'掉线次数： {record["recent_disconnect_count"]}',
+            f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
+            f'双排记录： {player["max_league_point_pair"]}',
+            f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
+            f'四排记录： {player["max_league_point_team"]}',
+            f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
+            f'开始时间： {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
+            f'更新时间： {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
+        ]
+        lines = [f'`{l}`' for l in lines]
+        return '\n'.join(lines), MessageType.Markdown
+
+    @staticmethod
+    def push_battle(battle, battle_poll):
+        return _battle_result_msg(battle, battle_poll.user.sp2_user, battle_poll)
+
+
+def _battle_result_msg(battle, sp2_user, battle_poll=None):
+    lines = list()
+
+    if battle_poll:
+        if battle.victory:
+            lines.append('我们赢啦！')
+        else:
+            lines.append('呜呜呜~输了不好意思见人了~')
+
+        victory_rate = 0
+        if battle_poll.game_count > 0:
+            victory_rate = battle_poll.game_victory_count / battle_poll.game_count * 100
+
+        victory_count = battle_poll.game_victory_count
+        defeat_count = battle_poll.game_count - battle_poll.game_victory_count
+
+        battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
+        lines.append(battle_stat)
+
+    else:
+        lines.append(f"Battle ID:{battle.battle_number}")
+
+    rule_info = ''
+    if battle.battle_type == SP2BattleType.Gachi:
+        power = f'  Power: {battle.estimate_gachi_power}' if battle.estimate_gachi_power else ''
+        rule_info = f'`{battle.rule.name}:{battle.player_result.player.udemae.name}{power}`'
+    elif battle.battle_type == SP2BattleType.League:
+        max_league_point = ''
+        if battle.max_league_point > 0:
+            max_league_point = f'\nmax_league_point: {battle.max_league_point}'
+        rule_info = f'`{battle.rule.name}, {battle.game_mode}{max_league_point}`'
+    if rule_info:
+        lines.append(rule_info)
+
+    my_team_is_top = battle.victory
+
+    my_or_other_members = [battle.my_team_members, battle.other_team_members]
+
+    lines.append(_battle_team_title(my_team_is_top, battle))
+    lines.append(_battle_result_member(sp2_user, my_or_other_members[not my_team_is_top]))
+
+    lines.append(_battle_team_title(not my_team_is_top, battle))
+    lines.append(_battle_result_member(sp2_user, my_or_other_members[my_team_is_top]))
+
+    return '\n'.join(lines), MessageType.Markdown
 
 
 def _battle_team_title(my_team: bool, battle: SP2BattleResult):
@@ -286,6 +290,16 @@ def _battle_result_member(self_sp2_user, members):
         # If self
         if self_sp2_user and member.player.principal_id == self_sp2_user.principal_id:
             nickname = f'{nickname} 👨🏻‍✈️'
+
+        # turf_war don't have udemae info
+        if member.player.udemae and member.player.udemae.name:
+            return '`{:<2}|{:>2} {:>2}+{}k`  `{:>2}d {:>4.1f}  ` {}' \
+                .format(member.player.udemae.name, member.kill_count,
+                        member.kill_count - member.assist_count,
+                        member.assist_count,
+                        member.death_count,
+                        (member.kill_count - member.assist_count) / member.death_count if member.death_count else 99.0,
+                        nickname)
 
         avatar = '🐙' if member.player.species == SP2PlayerSpecies.Octolings else '🦑'
 
