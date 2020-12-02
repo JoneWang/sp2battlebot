@@ -191,24 +191,23 @@ More commands type /help.
         player = info["records"]["player"]
         rank = str(player["player_rank"])
         if player.get("star_rank"):
-            rank = f'(*{player["star_rank"]}) ' + rank
+            rank = f'(⭐️{player["star_rank"]}) ' + rank
 
         lp = record["league_stats"]["pair"]
         lt = record["league_stats"]["team"]
         lines = [
-            f'{player["nickname"]}, {rank}',
-            f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
-            f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
-            f'掉线次数： {record["recent_disconnect_count"]}',
-            f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
-            f'双排记录： {player["max_league_point_pair"]}',
-            f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
-            f'四排记录： {player["max_league_point_team"]}',
-            f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
-            f'开始时间： {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
-            f'更新时间： {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
+            f'`{player["nickname"]}, {rank}`',
+            f'*真格段位：* 区 `{player["udemae_zones"]["name"]}` | 塔 `{player["udemae_tower"]["name"]}` | 鱼 `{player["udemae_rainmaker"]["name"]}` | 蛤 `{player["udemae_clam"]["name"]}`',
+            f'*最近场数：* {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'*最近掉线：* {record["recent_disconnect_count"]}',
+            f'*所有记录：* {record["win_count"] + record["lose_count"]} | {record["win_count"]}/{record["lose_count"]}',
+            f'*双排记录：* {player["max_league_point_pair"]}',
+            f'*▸* 🥇 `{lp["gold_count"]}`  🥈 `{lp["silver_count"]}`  🥉 `{lp["bronze_count"]}`  无 `{lp["no_medal_count"]}`  共 `{sum(lp.values())}`',
+            f'*四排记录：* {player["max_league_point_team"]}',
+            f'*▸* 🥇 `{lt["gold_count"]}`  🥈 `{lt["silver_count"]}`  🥉 `{lt["bronze_count"]}`  无 `{lt["no_medal_count"]}`  共 `{sum(lt.values())}`',
+            f'*首次游戏：* {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
+            f'*最近游玩：* {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
         ]
-        lines = [f'`{l}`' for l in lines]
         return '\n'.join(lines), MessageType.Markdown
 
     @staticmethod
@@ -293,12 +292,12 @@ def _battle_result_member(self_sp2_user, members):
 
         # turf_war don't have udemae info
         if member.player.udemae and member.player.udemae.name:
-            return '`{:<2}|{:>2} {:>2}+{}k`  `{:>2}d {:>4.1f}  ` {}' \
+            return '`{:<2}|{:>2} {:>2}+{}k` `{:>2}d {}sp `{}' \
                 .format(member.player.udemae.name, member.kill_count,
                         member.kill_count - member.assist_count,
                         member.assist_count,
                         member.death_count,
-                        (member.kill_count - member.assist_count) / member.death_count if member.death_count else 99.0,
+                        member.special_count,
                         nickname)
 
         avatar = '🐙' if member.player.species == SP2PlayerSpecies.Octolings else '🦑'
