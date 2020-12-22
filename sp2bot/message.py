@@ -293,12 +293,13 @@ def _battle_result_member(self_sp2_user, members):
 
         # turf_war don't have udemae info
         if member.player.udemae and member.player.udemae.name:
-            return '`{:<2}|{:>2} {:>2}+{}k`  `{:>2}d {:>4.1f}  ` {}' \
+            return '`{:<2}|{:>2} {:>2}+{}k`  `{:>2}d {:>4.1f} {:>2}sp ` {}' \
                 .format(member.player.udemae.name, member.kill_count,
                         member.kill_count - member.assist_count,
                         member.assist_count,
                         member.death_count,
                         (member.kill_count - member.assist_count) / member.death_count if member.death_count else 99.0,
+                        member.special_count,
                         nickname)
 
         avatar = '🐙' if member.player.species == SP2PlayerSpecies.Octolings else '🦑'
