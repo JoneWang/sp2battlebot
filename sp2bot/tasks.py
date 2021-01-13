@@ -107,17 +107,19 @@ class Task:
 
             if battle_poll.last_battle_udemae and \
                     battle_poll.last_battle_rule == battle.rule.key and \
-                    battle_poll.last_battle_udemae.name != rank.name and \
-                    battle_poll.last_battle_udemae.s_plus_number != rank.s_plus_number:
+                    (battle_poll.last_battle_udemae.name != rank.name or \
+                     (battle_poll.last_battle_udemae.name == rank.name and
+                      battle_poll.last_battle_udemae.s_plus_number != rank.s_plus_number)):
                 content = Message.rank_changed(
+                    battle.rule.name,
                     battle.player_result.player.nickname,
                     battle_poll.last_battle_udemae,
                     rank
                 )
                 bot.send_message(
-                        battle_poll.chat.id,
-                        content
-                    )
+                    battle_poll.chat.id,
+                    content
+                )
 
             # Update poll
             battle_poll.game_count += 1
