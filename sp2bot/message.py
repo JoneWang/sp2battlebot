@@ -141,12 +141,25 @@ More commands type /help.
 """
 
     @staticmethod
-    def rank_changed(nickname, old_rank, new_rank):
+    def rank_changed(rule_name, nickname, old_rank, new_rank):
         nickname = nickname.replace('`', '`\``')
-        old_rank_str = old_rank.s_plus_number if old_rank.s_plus_number else ''
-        new_rank_str = new_rank.s_plus_number if new_rank.s_plus_number else ''
-        return f'#{nickname}  {old_rank.name}{old_rank_str} -> ' \
-               f'{new_rank.name}{new_rank_str}'
+        old_rank_s_plus_number = old_rank.s_plus_number if old_rank.s_plus_number else ''
+        new_rank_s_plus_number = new_rank.s_plus_number if new_rank.s_plus_number else ''
+
+        ranks = ['C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S', 'S+', 'X']
+        old_level = ranks.index(old_rank.name)
+        new_level = ranks.index(new_rank.name)
+
+        change = 'RankUp'
+        change_icon = '⬆️'
+        if old_level > new_level or \
+                (old_level == new_level and old_rank_s_plus_number > new_rank_s_plus_number):
+            change = 'RankDown'
+            change_icon = '⬇️'
+
+        return f'{change_icon} #{change} *{nickname}* `{rule_name}` ' \
+               f'{old_rank.name}{old_rank_s_plus_number} -> ' \
+               f'{new_rank.name}{new_rank_s_plus_number}'
 
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
