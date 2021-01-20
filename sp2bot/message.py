@@ -159,7 +159,7 @@ More commands type /help.
 
         return f'{change_icon} #{change} *{nickname}* `{rule_name}` ' \
                f'{old_rank.name}{old_rank_s_plus_number} -> ' \
-               f'{new_rank.name}{new_rank_s_plus_number}'
+               f'{new_rank.name}{new_rank_s_plus_number}', MessageType.Markdown
 
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
