@@ -93,4 +93,3 @@ class Splatoon2Auth:
 
     def get_cookie(self, session_token):
         return None
-
