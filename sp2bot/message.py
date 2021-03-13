@@ -36,7 +36,7 @@ class Message:
 
     @property
     def splatoon_connect_error(self):
-        text = 'Error from Nintendo server, please try again later.'
+        text = 'Service maintenance in progress.'
         return text
 
     @property
