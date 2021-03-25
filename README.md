@@ -62,3 +62,7 @@ Thank them for providing the necessary algorithm API for account login.
 * [ikaWidget2](https://play.google.com/store/apps/details?id=com.flapg.ikawidget2) ([@NexusMine](https://twitter.com/NexusMine)) 
 
 * [splatnet2statink](https://github.com/frozenpandaman/splatnet2statink) ([@frozenpandaman](https://twitter.com/frozenpandaman))
+
+## Wiki
+
+[Privacy Policy](https://github.com/JoneWang/sp2battlebot/wiki/Privacy-Policy)
