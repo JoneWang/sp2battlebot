@@ -36,7 +36,7 @@ class Message:
 
     @property
     def splatoon_connect_error(self):
-        text = 'Error from Nintendo server, please try again later.'
+        text = 'Service maintenance in progress.'
         return text
 
     @property
@@ -141,12 +141,25 @@ More commands type /help.
 """
 
     @staticmethod
-    def rank_changed(nickname, old_rank, new_rank):
+    def rank_changed(rule_name, nickname, old_rank, new_rank):
         nickname = nickname.replace('`', '`\``')
-        old_rank_str = old_rank.s_plus_number if old_rank.s_plus_number else ''
-        new_rank_str = new_rank.s_plus_number if new_rank.s_plus_number else ''
-        return f'#{nickname}  {old_rank.name}{old_rank_str} -> ' \
-               f'{new_rank.name}{new_rank_str}'
+        old_rank_s_plus_number = old_rank.s_plus_number if old_rank.s_plus_number else ''
+        new_rank_s_plus_number = new_rank.s_plus_number if new_rank.s_plus_number else ''
+
+        ranks = ['C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S', 'S+', 'X']
+        old_level = ranks.index(old_rank.name)
+        new_level = ranks.index(new_rank.name)
+
+        change = 'RankUp'
+        change_icon = '⬆️'
+        if old_level > new_level or \
+                (old_level == new_level and old_rank_s_plus_number > new_rank_s_plus_number):
+            change = 'RankDown'
+            change_icon = '⬇️'
+
+        return f'{change_icon} #{change} *{nickname}* `{rule_name}` ' \
+               f'{old_rank.name}{old_rank_s_plus_number} -> ' \
+               f'{new_rank.name}{new_rank_s_plus_number}', MessageType.Markdown
 
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
@@ -191,24 +204,23 @@ More commands type /help.
         player = info["records"]["player"]
         rank = str(player["player_rank"])
         if player.get("star_rank"):
-            rank = f'(*{player["star_rank"]}) ' + rank
+            rank = f'(⭐️{player["star_rank"]}) ' + rank
 
         lp = record["league_stats"]["pair"]
         lt = record["league_stats"]["team"]
         lines = [
-            f'{player["nickname"]}, {rank}',
-            f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
-            f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
-            f'掉线次数： {record["recent_disconnect_count"]}',
-            f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
-            f'双排记录： {player["max_league_point_pair"]}',
-            f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
-            f'四排记录： {player["max_league_point_team"]}',
-            f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
-            f'开始时间： {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
-            f'更新时间： {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
+            f'`{player["nickname"]}, {rank}`',
+            f'*真格段位：* 区 `{player["udemae_zones"]["name"]}` | 塔 `{player["udemae_tower"]["name"]}` | 鱼 `{player["udemae_rainmaker"]["name"]}` | 蛤 `{player["udemae_clam"]["name"]}`',
+            f'*最近场数：* {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'*最近掉线：* {record["recent_disconnect_count"]}',
+            f'*所有记录：* {record["win_count"] + record["lose_count"]} | {record["win_count"]}/{record["lose_count"]}',
+            f'*双排记录：* {player["max_league_point_pair"]}',
+            f'*▸* 🥇 `{lp["gold_count"]}`  🥈 `{lp["silver_count"]}`  🥉 `{lp["bronze_count"]}`  无 `{lp["no_medal_count"]}`  共 `{sum(lp.values())}`',
+            f'*四排记录：* {player["max_league_point_team"]}',
+            f'*▸* 🥇 `{lt["gold_count"]}`  🥈 `{lt["silver_count"]}`  🥉 `{lt["bronze_count"]}`  无 `{lt["no_medal_count"]}`  共 `{sum(lt.values())}`',
+            f'*首次游戏：* {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
+            f'*最近游玩：* {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
         ]
-        lines = [f'`{l}`' for l in lines]
         return '\n'.join(lines), MessageType.Markdown
 
     @staticmethod
