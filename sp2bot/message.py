@@ -215,9 +215,9 @@ More commands type /help.
             f'*最近掉线：* {record["recent_disconnect_count"]}',
             f'*所有记录：* {record["win_count"] + record["lose_count"]} | {record["win_count"]}/{record["lose_count"]}',
             f'*双排记录：* {player["max_league_point_pair"]}',
-            f'*▸* 🥇 `{lp["gold_count"]}`  🥈 `{lp["silver_count"]}`  🥉 `{lp["bronze_count"]}`  无 `{lp["no_medal_count"]}`  共 `{sum(lp.values())}`',
+            f'*▸* 🥇 `{lp["gold_count"]:>3}`  🥈 `{lp["silver_count"]:>3}`  🥉 `{lp["bronze_count"]:>3}`  无 `{lp["no_medal_count"]:>3}`  共 `{sum(lp.values())}`',
             f'*四排记录：* {player["max_league_point_team"]}',
-            f'*▸* 🥇 `{lt["gold_count"]}`  🥈 `{lt["silver_count"]}`  🥉 `{lt["bronze_count"]}`  无 `{lt["no_medal_count"]}`  共 `{sum(lt.values())}`',
+            f'*▸* 🥇 `{lt["gold_count"]:>3}`  🥈 `{lt["silver_count"]:>3}`  🥉 `{lt["bronze_count"]:>3}`  无 `{lt["no_medal_count"]:>3}`  共 `{sum(lt.values())}`',
             f'*首次游戏：* {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
             f'*最近游玩：* {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
         ]
