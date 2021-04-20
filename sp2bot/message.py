@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime as dt
 from telegram.utils.helpers import escape_markdown
 
@@ -224,8 +225,56 @@ More commands type /help.
         return '\n'.join(lines), MessageType.Markdown
 
     @staticmethod
+    def medal_msg(battle_poll, splatoon2):
+        last_medal = battle_poll.last_medal
+        if last_medal and battle_poll.flag_medal == 0:
+            return
+        if last_medal and ((dt.now().hour % 2) or (dt.now().minute > 20)):
+            return
+
+        if last_medal:
+            last_medal = json.loads(last_medal) or {}
+        # print(f'last_medal: {last_medal}')
+        try:
+            user_info = splatoon2.get_user_info()
+            league_info = user_info["records"]["league_stats"]
+            current_medal = {'lp': league_info["pair"], 'lt': league_info["team"]}
+            # print(f'curr_medal: {current_medal}')
+
+            battle_poll.last_medal = json.dumps(current_medal)
+
+            if not last_medal:
+                return
+            msg = ''
+            if last_medal['lp'] != current_medal['lp']:
+                msg += f"双排奖章更新！{_medal_str(last_medal['lp'], current_medal['lp'])}"
+            if last_medal['lt'] != current_medal['lt']:
+                msg += f"四排奖章更新！{_medal_str(last_medal['lt'], current_medal['lt'])}"
+
+            if msg:
+                battle_poll.flag_medal = 0
+
+            return msg
+        except Exception as ex:
+            print(f'Exception, medal_msg: {ex}')
+            return
+
+    @staticmethod
     def push_battle(battle, battle_poll):
         return _battle_result_msg(battle, battle_poll.user.sp2_user, battle_poll)
+
+
+def _medal_str(old_m, new_m):
+    msg = ''
+    if old_m['gold_count'] != new_m['gold_count']:
+        msg += '获得` 🥇 `'
+    elif old_m['silver_count'] != new_m['silver_count']:
+        msg += '获得` 🥈 `'
+    elif old_m['bronze_count'] != new_m['bronze_count']:
+        msg += '获得` 🥉 `'
+    else:
+        msg += '分数太低啦~ 没有牌牌，下次加油！'
+    return msg
 
 
 def _battle_result_msg(battle, sp2_user, battle_poll=None):
@@ -246,6 +295,9 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
 
         battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
         lines.append(battle_stat)
+
+        if battle.battle_type == SP2BattleType.League:
+            battle_poll.flag_medal = 1
 
     else:
         lines.append(f"Battle ID:{battle.battle_number}")
