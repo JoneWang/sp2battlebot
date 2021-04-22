@@ -226,16 +226,17 @@ More commands type /help.
 
     @staticmethod
     def medal_msg(battle_poll, splatoon2):
-        last_medal = battle_poll.last_medal
-        if last_medal and battle_poll.flag_medal == 0:
-            return
-        if last_medal and ((dt.now().hour % 2) or (dt.now().minute > 20)):
-            return
-
-        if last_medal:
-            last_medal = json.loads(last_medal) or {}
-        # print(f'last_medal: {last_medal}')
         try:
+            last_medal = battle_poll.last_medal
+            if last_medal and battle_poll.flag_medal == 0:
+                return
+            if last_medal and ((dt.now().hour % 2) or (dt.now().minute > 20)):
+                return
+
+            if last_medal:
+                last_medal = json.loads(last_medal) or {}
+            # print(f'last_medal: {last_medal}')
+
             user_info = splatoon2.get_user_info()
             league_info = user_info["records"]["league_stats"]
             current_medal = {'lp': league_info["pair"], 'lt': league_info["team"]}
