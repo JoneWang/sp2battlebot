@@ -159,6 +159,9 @@ class SP2BattleResult(Model):
         elif data.get("estimate_x_power"):
             battle['estimate_gachi_power'] = f"计策中...\nestimate_x_power: {data['estimate_x_power']}"
 
+        if data.get('league_point'):
+            battle['game_mode'] += f': {data["league_point"]}'
+
         if battle.get('rule'):
             battle['rule'] = SP2BattleResult.Rule.de_json(battle.get('rule'))
 
