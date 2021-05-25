@@ -284,8 +284,10 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
     if battle_poll:
         if battle.victory:
             lines.append('我们赢啦！')
+            battle_poll.last_battle_status = max(battle_poll.last_battle_status, 0) + 1
         else:
             lines.append('呜呜呜~输了不好意思见人了~')
+            battle_poll.last_battle_status = min(battle_poll.last_battle_status, 0) - 1
 
         victory_rate = 0
         if battle_poll.game_count > 0:
@@ -295,6 +297,14 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
         defeat_count = battle_poll.game_count - battle_poll.game_victory_count
 
         battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
+
+        streak = battle_poll.last_battle_status
+        if abs(streak) >= 3:
+            if streak > 0:
+                battle_stat += f'`, {streak}连胜`'
+            else:
+                battle_stat += f'`, {abs(streak)}连败`'
+
         lines.append(battle_stat)
 
         if battle.battle_type == SP2BattleType.League:
