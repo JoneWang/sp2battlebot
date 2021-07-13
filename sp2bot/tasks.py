@@ -169,6 +169,10 @@ class Task:
             # Save updated to context
             context.job.context = (battle_poll, splatoon2)
 
+        medal_msg_content = Message.medal_msg(battle_poll, splatoon2)
+        if medal_msg_content:
+            bot.send_message(battle_poll.chat.id, medal_msg_content, parse_mode='Markdown')
+
         store.update_battle_poll(battle_poll)
 
     def _all_user_keep_alive(self, context: CallbackContext):
