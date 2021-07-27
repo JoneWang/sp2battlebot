@@ -152,53 +152,7 @@ class Splatoon2Auth:
         self.version = '1.5.11'
 
     def get_login_url(self, user_id):
-        session = requests.Session()
-
-        auth_state = base64.urlsafe_b64encode(os.urandom(36))
-
-        auth_code_verifier = base64.urlsafe_b64encode(os.urandom(32))
-        print(f'auth_code_verifier {auth_code_verifier}')
-        auth_cv_hash = hashlib.sha256()
-        auth_cv_hash.update(auth_code_verifier.replace(b"=", b""))
-        auth_code_challenge = base64.urlsafe_b64encode(auth_cv_hash.digest())
-
-        AUTH_CODE_VERIFIERS[user_id] = auth_code_verifier
-
-        app_head = {
-            'Host': 'accounts.nintendo.com',
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; Pixel Build/NJH47D; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8n',
-            'DNT': '1',
-            'Accept-Encoding': 'gzip,deflate,br',
-        }
-
-        body = {
-            'state': auth_state,
-            'redirect_uri': 'npf71b963c1b7b6d119://auth',
-            'client_id': '71b963c1b7b6d119',
-            'scope': 'openid user user.birthday user.mii user.screenName',
-            'response_type': 'session_token_code',
-            'session_token_code_challenge': auth_code_challenge.replace(b"=",
-                                                                        b""),
-            'session_token_code_challenge_method': 'S256',
-            'theme': 'login_form'
-        }
-
-        url = 'https://accounts.nintendo.com/connect/1.0.0/authorize'
-
-        try:
-            r = session.get(url, headers=app_head, params=body)
-        except Exception as e:
-            # TODO:
-            print(e)
-            return None
-
-        post_login = r.history[0].url
-        # TODO:
-        return post_login
+        return None
 
     def get_session_token(self, user_id, session_token_code):
         '''Helper function for log_in().'''

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime as dt
 from telegram.utils.helpers import escape_markdown
 
@@ -36,7 +37,7 @@ class Message:
 
     @property
     def splatoon_connect_error(self):
-        text = 'Error from Nintendo server, please try again later.'
+        text = 'Service maintenance in progress.'
         return text
 
     @property
@@ -141,12 +142,25 @@ More commands type /help.
 """
 
     @staticmethod
-    def rank_changed(nickname, old_rank, new_rank):
+    def rank_changed(rule_name, nickname, old_rank, new_rank):
         nickname = nickname.replace('`', '`\``')
-        old_rank_str = old_rank.s_plus_number if old_rank.s_plus_number else ''
-        new_rank_str = new_rank.s_plus_number if new_rank.s_plus_number else ''
-        return f'#{nickname}  {old_rank.name}{old_rank_str} -> ' \
-               f'{new_rank.name}{new_rank_str}'
+        old_rank_s_plus_number = old_rank.s_plus_number if old_rank.s_plus_number else ''
+        new_rank_s_plus_number = new_rank.s_plus_number if new_rank.s_plus_number else ''
+
+        ranks = ['C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S', 'S+', 'X']
+        old_level = ranks.index(old_rank.name)
+        new_level = ranks.index(new_rank.name)
+
+        change = 'RankUp'
+        change_icon = '⬆️'
+        if old_level > new_level or \
+                (old_level == new_level and old_rank_s_plus_number > new_rank_s_plus_number):
+            change = 'RankDown'
+            change_icon = '⬇️'
+
+        return f'{change_icon} #{change} *{nickname}* `{rule_name}` ' \
+               f'{old_rank.name}{old_rank_s_plus_number} -> ' \
+               f'{new_rank.name}{new_rank_s_plus_number}', MessageType.Markdown
 
     def last50_overview(self, battle_overview):
         battles = battle_overview.results
@@ -191,29 +205,77 @@ More commands type /help.
         player = info["records"]["player"]
         rank = str(player["player_rank"])
         if player.get("star_rank"):
-            rank = f'(*{player["star_rank"]}) ' + rank
+            rank = f'(⭐️{player["star_rank"]}) ' + rank
 
         lp = record["league_stats"]["pair"]
         lt = record["league_stats"]["team"]
         lines = [
-            f'{player["nickname"]}, {rank}',
-            f'真格段位：区 {player["udemae_zones"]["name"]}，塔 {player["udemae_tower"]["name"]}，鱼 {player["udemae_rainmaker"]["name"]}，蛤 {player["udemae_clam"]["name"]}',
-            f'最近场数： {record["recent_win_count"]}/{record["recent_lose_count"]}',
-            f'掉线次数： {record["recent_disconnect_count"]}',
-            f'所有记录： {record["win_count"] + record["lose_count"]}: {record["win_count"]}/{record["lose_count"]}',
-            f'双排记录： {player["max_league_point_pair"]}',
-            f'金:{lp["gold_count"]:>3} 银: {lp["silver_count"]:>3} 铜: {lp["bronze_count"]:>3} 无: {lp["no_medal_count"]:>3} 共: {sum(lp.values())}',
-            f'四排记录： {player["max_league_point_team"]}',
-            f'金:{lt["gold_count"]:>3} 银: {lt["silver_count"]:>3} 铜: {lt["bronze_count"]:>3} 无: {lt["no_medal_count"]:>3} 共: {sum(lt.values())}',
-            f'开始时间： {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
-            f'更新时间： {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
+            f'`{player["nickname"]}, {rank}`',
+            f'*真格段位：* 区 `{player["udemae_zones"]["name"]}` | 塔 `{player["udemae_tower"]["name"]}` | 鱼 `{player["udemae_rainmaker"]["name"]}` | 蛤 `{player["udemae_clam"]["name"]}`',
+            f'*最近场数：* {record["recent_win_count"]}/{record["recent_lose_count"]}',
+            f'*最近掉线：* {record["recent_disconnect_count"]}',
+            f'*所有记录：* {record["win_count"] + record["lose_count"]} | {record["win_count"]}/{record["lose_count"]}',
+            f'*双排记录：* {player["max_league_point_pair"]}',
+            f'*▸* 🥇 `{lp["gold_count"]:>3}`  🥈 `{lp["silver_count"]:>3}`  🥉 `{lp["bronze_count"]:>3}`  无 `{lp["no_medal_count"]:>3}`  共 `{sum(lp.values())}`',
+            f'*四排记录：* {player["max_league_point_team"]}',
+            f'*▸* 🥇 `{lt["gold_count"]:>3}`  🥈 `{lt["silver_count"]:>3}`  🥉 `{lt["bronze_count"]:>3}`  无 `{lt["no_medal_count"]:>3}`  共 `{sum(lt.values())}`',
+            f'*首次游戏：* {dt.utcfromtimestamp(record["start_time"]):%Y-%m-%d %H:%M:%S} (UTC)',
+            f'*最近游玩：* {dt.utcfromtimestamp(record["update_time"]):%Y-%m-%d %H:%M:%S (UTC)}'
         ]
-        lines = [f'`{l}`' for l in lines]
         return '\n'.join(lines), MessageType.Markdown
+
+    @staticmethod
+    def medal_msg(battle_poll, splatoon2):
+        try:
+            last_medal = battle_poll.last_medal
+            if last_medal and battle_poll.flag_medal == 0:
+                return
+            if last_medal and ((dt.now().hour % 2) or (dt.now().minute > 20)):
+                return
+
+            if last_medal:
+                last_medal = json.loads(last_medal) or {}
+            # print(f'last_medal: {last_medal}')
+
+            user_info = splatoon2.get_user_info()
+            league_info = user_info["records"]["league_stats"]
+            current_medal = {'lp': league_info["pair"], 'lt': league_info["team"]}
+            # print(f'curr_medal: {current_medal}')
+
+            battle_poll.last_medal = json.dumps(current_medal)
+
+            if not last_medal:
+                return
+            msg = ''
+            if last_medal['lp'] != current_medal['lp']:
+                msg += f"双排奖章更新！{_medal_str(last_medal['lp'], current_medal['lp'])}"
+            if last_medal['lt'] != current_medal['lt']:
+                msg += f"四排奖章更新！{_medal_str(last_medal['lt'], current_medal['lt'])}"
+
+            if msg:
+                battle_poll.flag_medal = 0
+
+            return msg
+        except Exception as ex:
+            print(f'Exception, medal_msg: {ex}')
+            return
 
     @staticmethod
     def push_battle(battle, battle_poll):
         return _battle_result_msg(battle, battle_poll.user.sp2_user, battle_poll)
+
+
+def _medal_str(old_m, new_m):
+    msg = ''
+    if old_m['gold_count'] != new_m['gold_count']:
+        msg += '获得` 🥇 `'
+    elif old_m['silver_count'] != new_m['silver_count']:
+        msg += '获得` 🥈 `'
+    elif old_m['bronze_count'] != new_m['bronze_count']:
+        msg += '获得` 🥉 `'
+    else:
+        msg += '分数太低啦~ 没有牌牌，下次加油！'
+    return msg
 
 
 def _battle_result_msg(battle, sp2_user, battle_poll=None):
@@ -222,8 +284,10 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
     if battle_poll:
         if battle.victory:
             lines.append('我们赢啦！')
+            battle_poll.last_battle_status = max(battle_poll.last_battle_status, 0) + 1
         else:
             lines.append('呜呜呜~输了不好意思见人了~')
+            battle_poll.last_battle_status = min(battle_poll.last_battle_status, 0) - 1
 
         victory_rate = 0
         if battle_poll.game_count > 0:
@@ -233,7 +297,18 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
         defeat_count = battle_poll.game_count - battle_poll.game_victory_count
 
         battle_stat = f'`当前胜率{victory_rate:.0f}% 胜{victory_count} 负{defeat_count}`'
+
+        streak = battle_poll.last_battle_status
+        if abs(streak) >= 3:
+            if streak > 0:
+                battle_stat += f'`, {streak}连胜`'
+            else:
+                battle_stat += f'`, {abs(streak)}连败`'
+
         lines.append(battle_stat)
+
+        if battle.battle_type == SP2BattleType.League:
+            battle_poll.flag_medal = 1
 
     else:
         lines.append(f"Battle ID:{battle.battle_number}")

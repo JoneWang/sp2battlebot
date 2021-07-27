@@ -71,6 +71,9 @@ class BattlePoll(Model):
                  last_battle_number=None,
                  last_battle_udemae=None,
                  last_battle_rule=None,
+                 last_battle_status=0,
+                 last_medal=None,
+                 flag_medal=0,
                  game_count=0,
                  game_victory_count=0):
         self.chat = chat
@@ -79,8 +82,12 @@ class BattlePoll(Model):
         self.last_battle_number = last_battle_number
         self.last_battle_udemae = last_battle_udemae
         self.last_battle_rule = last_battle_rule
+        self.last_battle_status = last_battle_status
         self.game_count = game_count
         self.game_victory_count = game_victory_count
+
+        self.last_medal = last_medal
+        self.flag_medal = flag_medal
 
     @classmethod
     def de_json(cls, data):
