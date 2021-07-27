@@ -149,7 +149,7 @@ class Splatoon2Auth:
 
     def __init__(self, session_token=None):
         self.session_token = session_token
-        self.version = '1.5.3'
+        self.version = '1.5.11'
 
     def get_login_url(self, user_id):
         session = requests.Session()
@@ -211,7 +211,7 @@ class Splatoon2Auth:
             return None
 
         app_head = {
-            'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android',
+            'User-Agent': 'OnlineLounge/1.11.0 NASDKAPI Android',
             'Accept-Language': 'en-US',
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -252,7 +252,7 @@ class Splatoon2Auth:
             'Content-Length': '439',
             'Accept': 'application/json',
             'Connection': 'Keep-Alive',
-            'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android'
+            'User-Agent': 'OnlineLounge/1.11.0 NASDKAPI Android'
         }
 
         body = {
@@ -269,7 +269,7 @@ class Splatoon2Auth:
         # get user info
         try:
             app_head = {
-                'User-Agent': 'OnlineLounge/1.9.0 NASDKAPI Android',
+                'User-Agent': 'OnlineLounge/1.11.0 NASDKAPI Android',
                 'Accept-Language': 'en-US',
                 'Accept': 'application/json',
                 'Authorization': 'Bearer {}'.format(
@@ -297,9 +297,9 @@ class Splatoon2Auth:
         app_head = {
             'Host': 'api-lp1.znc.srv.nintendo.net',
             'Accept-Language': 'en-US',
-            'User-Agent': 'com.nintendo.znca/1.9.0 (Android/7.1.2)',
+            'User-Agent': 'com.nintendo.znca/1.11.0 (Android/7.1.2)',
             'Accept': 'application/json',
-            'X-ProductVersion': '1.9.0',
+            'X-ProductVersion': '1.11.0',
             'Content-Type': 'application/json; charset=utf-8',
             'Connection': 'Keep-Alive',
             'Authorization': 'Bearer',
@@ -350,9 +350,9 @@ class Splatoon2Auth:
         try:
             app_head = {
                 'Host': 'api-lp1.znc.srv.nintendo.net',
-                'User-Agent': 'com.nintendo.znca/1.9.0 (Android/7.1.2)',
+                'User-Agent': 'com.nintendo.znca/1.11.0 (Android/7.1.2)',
                 'Accept': 'application/json',
-                'X-ProductVersion': '1.9.0',
+                'X-ProductVersion': '1.11.0',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive',
                 'Authorization': 'Bearer {}'.format(
