@@ -313,13 +313,13 @@ class Splatoon2Auth:
         try:
             idToken = id_response["access_token"]
 
-            flapg_nso = self.call_flapg_api(idToken, guid, timestamp, "nso")
+            f = self.call_imink_api(idToken, guid, timestamp, "1")
 
             parameter = {
-                'f': flapg_nso["f"],
-                'naIdToken': flapg_nso["p1"],
-                'timestamp': flapg_nso["p2"],
-                'requestId': flapg_nso["p3"],
+                'f': f,
+                'naIdToken': idToken,
+                'timestamp': timestamp,
+                'requestId': guid,
                 'naCountry': user_info["country"],
                 'naBirthday': user_info["birthday"],
                 'language': user_info["language"]
@@ -340,7 +340,7 @@ class Splatoon2Auth:
         try:
             idToken = splatoon_token["result"]["webApiServerCredential"][
                 "accessToken"]
-            flapg_app = self.call_flapg_api(idToken, guid, timestamp, "app")
+            f = self.call_imink_api(idToken, guid, timestamp, "2")
         except:
             print("Error from Nintendo (in Account/Login step):")
             print(json.dumps(splatoon_token, indent=2))
@@ -372,10 +372,10 @@ class Splatoon2Auth:
         body = {}
         parameter = {
             'id': 5741031244955648,
-            'f': flapg_app["f"],
-            'registrationToken': flapg_app["p1"],
-            'timestamp': flapg_app["p2"],
-            'requestId': flapg_app["p3"]
+            'f': f,
+            'registrationToken': idToken,
+            'timestamp': timestamp,
+            'requestId': guid
         }
         body["parameter"] = parameter
 
@@ -410,53 +410,37 @@ class Splatoon2Auth:
         r = requests.get(url, headers=app_head)
         return r.cookies["iksm_session"]
 
-    def get_hash_from_s2s_api(self, id_token, timestamp):
-        '''Passes an id_token and timestamp to the s2s API and fetches the resultant hash from the response.'''
-
-        # proceed normally
-        try:
-            api_app_head = {
-                'User-Agent': "sp2battlebot/{}".format(self.version)}
-            api_body = {'naIdToken': id_token, 'timestamp': timestamp}
-            api_response = requests.post("https://elifessler.com/s2s/api/gen2",
-                                         headers=api_app_head, data=api_body)
-            return json.loads(api_response.text)["hash"]
-        except:
-            print("Error from the splatnet2statink API:\n{}".format(
-                json.dumps(json.loads(api_response.text), indent=2)))
-
-            # TODO:
-            return None
-
-    def call_flapg_api(self, id_token, guid, timestamp, type):
+    def call_imink_api(self, id_token, guid, timestamp, hash_method):
         '''Passes in headers to the flapg API (Android emulator) and fetches the response.'''
 
         try:
-            api_app_head = {
-                'x-token': id_token,
-                'x-time': str(timestamp),
-                'x-guid': guid,
-                'x-hash': self.get_hash_from_s2s_api(id_token, timestamp),
-                'x-ver': '3',
-                'x-iid': type
+            body = {
+                'token': id_token,
+                'timestamp': str(timestamp),
+                'request_id': guid,
+                'hash_method': hash_method
             }
-            api_response = requests.get(
-                "https://flapg.com/ika2/api/login?public",
-                headers=api_app_head
-            )
-            f = json.loads(api_response.text)["result"]
+
+            app_head = {
+                'User-Agent': 'sp2battlebot/0.0.1',
+            }
+
+            url = 'https://api.imink.jone.wang/f'
+
+            api_response = requests.post(url, headers=app_head, json=body)
+            f = json.loads(api_response.text)["f"]
             return f
         except:
             try:  # if api_response never gets set
                 if api_response.text:
-                    print(u"Error from the flapg API:\n{}".format(
+                    print(u"Error from the imink API:\n{}".format(
                         json.dumps(json.loads(api_response.text), indent=2,
                                    ensure_ascii=False)))
                 elif api_response.status_code == requests.codes.not_found:
                     print(
-                        "Error from the flapg API: Error 404 (offline or incorrect headers).")
+                        "Error from the imink API: Error 404 (offline or incorrect headers).")
                 else:
-                    print("Error from the flapg API: Error {}.".format(
+                    print("Error from the imink API: Error {}.".format(
                         api_response.status_code))
             except:
                 pass
