@@ -144,7 +144,7 @@ def update_user(user):
             u.sp2_principal_id = user.sp2_user.principal_id
             u.sp2_nickname = user.sp2_user.nickname
             u.sp2_style = user.sp2_user.style
-            u.sp2_species = user.sp2_user.speciess
+            u.sp2_species = user.sp2_user.species
 
     session.commit()
     session.close()
