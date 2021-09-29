@@ -140,10 +140,11 @@ def update_user(user):
         u.last_name = user.last_name
         u.iksm_session = user.iksm_session
         u.session_token = user.session_token
-        u.sp2_principal_id = user.sp2_user.principal_id
-        u.sp2_nickname = user.sp2_user.nickname
-        u.sp2_style = user.sp2_user.style
-        u.sp2_species = user.sp2_user.species
+        if user.sp2_user:
+            u.sp2_principal_id = user.sp2_user.principal_id
+            u.sp2_nickname = user.sp2_user.nickname
+            u.sp2_style = user.sp2_user.style
+            u.sp2_species = user.sp2_user.speciess
 
     session.commit()
     session.close()
