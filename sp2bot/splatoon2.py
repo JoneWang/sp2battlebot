@@ -149,8 +149,7 @@ class Splatoon2Auth:
 
     def __init__(self, session_token=None):
         self.session_token = session_token
-        self.version = '0.1.0'
-        self.nso_version = '1.11.0'
+        self.nso_version = '1.13.0'
 
     def get_login_url(self, user_id):
         session = requests.Session()
