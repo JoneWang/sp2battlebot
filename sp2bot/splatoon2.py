@@ -431,7 +431,7 @@ class Splatoon2Auth:
                 'User-Agent': 'sp2battlebot/0.0.1',
             }
 
-            url = 'https://api.imink.jone.wang/f'
+            url = 'https://api.imink.app/f'
 
             api_response = requests.post(url, headers=app_head, json=body)
             f = json.loads(api_response.text)["f"]
