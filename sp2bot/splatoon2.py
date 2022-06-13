@@ -143,13 +143,12 @@ class Splatoon2:
 
 
 AUTH_CODE_VERIFIERS = {}
-
+NSO_VERSION = '2.1.0'
 
 class Splatoon2Auth:
 
     def __init__(self, session_token=None):
         self.session_token = session_token
-        self.nso_version = '2.1.1'
 
     def get_login_url(self, user_id):
         session = requests.Session()
@@ -202,6 +201,14 @@ class Splatoon2Auth:
 
     def get_session_token(self, user_id, session_token_code):
         '''Helper function for log_in().'''
+
+        global NSO_VERSION
+        nso_version = self.get_nso_version()
+        if nso_version:
+            NSO_VERSION = nso_version
+        else:
+            return None
+
         session = requests.Session()
 
         try:
@@ -211,7 +218,7 @@ class Splatoon2Auth:
             return None
 
         app_head = {
-            'User-Agent': f'OnlineLounge/{self.nso_version} NASDKAPI Android',
+            'User-Agent': f'OnlineLounge/{NSO_VERSION} NASDKAPI Android',
             'Accept-Language': 'en-US',
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -252,7 +259,7 @@ class Splatoon2Auth:
             'Content-Length': '439',
             'Accept': 'application/json',
             'Connection': 'Keep-Alive',
-            'User-Agent': f'OnlineLounge/{self.nso_version} NASDKAPI Android'
+            'User-Agent': f'OnlineLounge/{NSO_VERSION} NASDKAPI Android'
         }
 
         body = {
@@ -269,7 +276,7 @@ class Splatoon2Auth:
         # get user info
         try:
             app_head = {
-                'User-Agent': f'OnlineLounge/{self.nso_version} NASDKAPI Android',
+                'User-Agent': f'OnlineLounge/{NSO_VERSION} NASDKAPI Android',
                 'Accept-Language': 'en-US',
                 'Accept': 'application/json',
                 'Authorization': 'Bearer {}'.format(
@@ -297,9 +304,9 @@ class Splatoon2Auth:
         app_head = {
             'Host': 'api-lp1.znc.srv.nintendo.net',
             'Accept-Language': 'en-US',
-            'User-Agent': f'com.nintendo.znca/{self.nso_version} (Android/7.1.2)',
+            'User-Agent': f'com.nintendo.znca/{NSO_VERSION} (Android/7.1.2)',
             'Accept': 'application/json',
-            'X-ProductVersion': self.nso_version,
+            'X-ProductVersion': NSO_VERSION,
             'Content-Type': 'application/json; charset=utf-8',
             'Connection': 'Keep-Alive',
             'Authorization': 'Bearer',
@@ -350,9 +357,9 @@ class Splatoon2Auth:
         try:
             app_head = {
                 'Host': 'api-lp1.znc.srv.nintendo.net',
-                'User-Agent': 'com.nintendo.znca/{self.nso_version} (Android/7.1.2)',
+                'User-Agent': f'com.nintendo.znca/{NSO_VERSION} (Android/7.1.2)',
                 'Accept': 'application/json',
-                'X-ProductVersion': self.nso_version,
+                'X-ProductVersion': NSO_VERSION,
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive',
                 'Authorization': 'Bearer {}'.format(
@@ -445,4 +452,33 @@ class Splatoon2Auth:
                 pass
 
             # TODO:
+            return None
+
+    def get_nso_version(self):
+        try:
+            app_head = {
+                'User-Agent': 'sp2battlebot/0.0.1',
+            }
+
+            url = 'https://api.imink.app/config'
+
+            api_response = requests.get(url, headers=app_head)
+            nso_version = json.loads(api_response.text)["nso_version"]
+            return nso_version
+        except:
+            try:  # if api_response never gets set
+                if api_response.text:
+                    print(u"Error from the imink API:\n{}".format(
+                        json.dumps(json.loads(api_response.text), indent=2,
+                                   ensure_ascii=False)))
+                elif api_response.status_code == requests.codes.not_found:
+                    print(
+                        "Error from the imink API: Error 404 (offline or incorrect headers).")
+                else:
+                    print("Error from the imink API: Error {}.".format(
+                        api_response.status_code))
+            except:
+                pass
+
+                # TODO:
             return None
