@@ -15,6 +15,8 @@ ADMINISTRATOR_USERNAME = os.environ.get('ADMINISTRATOR_USERNAME')
 # SQLite, Postgresql, MySQL, Oracle, MS-SQL, Firebird, Sybase...
 # More info: https://docs.sqlalchemy.org/en/13/dialects/
 DATABASE_URI = os.environ.get('DATABASE_URL')
+if DATABASE_URI and DATABASE_URI.startswith("postgres://"):
+    DATABASE_URI = DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
 # Webhook
 # Enable webhook mode.
