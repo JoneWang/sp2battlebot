@@ -115,6 +115,7 @@ class SP2BattleResult(Model):
                  other_team_percentage=None,
                  other_estimate_league_point=None,
                  estimate_gachi_power=None,
+                 group_id=None,
                  ):
         self.battle_number = battle_number
         self.battle_type = battle_type
@@ -130,6 +131,7 @@ class SP2BattleResult(Model):
         self.other_team_percentage = other_team_percentage
         self.other_estimate_league_point = other_estimate_league_point
         self.estimate_gachi_power = estimate_gachi_power
+        self.group_id = group_id
 
     @classmethod
     def de_json(cls, data):
@@ -161,6 +163,7 @@ class SP2BattleResult(Model):
 
         if data.get('league_point'):
             battle['game_mode'] += f': {data["league_point"]}'
+            battle['group_id'] = data.get('tag_id')
 
         if battle.get('rule'):
             battle['rule'] = SP2BattleResult.Rule.de_json(battle.get('rule'))
