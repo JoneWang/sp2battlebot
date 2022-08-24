@@ -172,6 +172,10 @@ class Task:
         if medal_msg_content:
             bot.send_message(battle_poll.chat.id, medal_msg_content, parse_mode='Markdown')
 
+        rank_msg_content = Message.league_rank_msg(battle_poll)
+        if rank_msg_content:
+            bot.send_message(battle_poll.chat.id, rank_msg_content, parse_mode='Markdown')
+
         store.update_battle_poll(battle_poll)
 
     def _all_user_keep_alive(self, context: CallbackContext):

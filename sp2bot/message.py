@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
-from datetime import datetime as dt
+import requests
+from datetime import datetime as dt, timedelta
 from telegram.utils.helpers import escape_markdown
 
 from sp2bot import store
@@ -264,6 +265,46 @@ More commands type /help.
     def push_battle(battle, battle_poll):
         return _battle_result_msg(battle, battle_poll.user.sp2_user, battle_poll)
 
+    @staticmethod
+    def league_rank_msg(battle_poll):
+        msg = ''
+        try:
+            flag_rank = battle_poll.flag_rank
+            if not flag_rank or not isinstance(flag_rank, list):
+                return
+
+            now = dt.now()
+            hh = 11 if now.hour % 2 else 10
+            nn = now - timedelta(hours=hh)
+            nn = nn.strftime('%y%m%d%H')
+
+            for f_r in flag_rank[:]:
+                up, tag_id = f_r.split(',')
+                if up[:-1] != nn:
+                    continue
+
+                if up[:-1] > nn:
+                    print(f'{up} > {nn}, remove')
+                    flag_rank.remove(f_r)
+                    continue
+
+                url = f'https://splatoon-stats-api.yuki.games/rankings/league/{up}'
+                r = requests.get(url)
+                if r.status_code == 200:
+                    print(f'get: {f_r}, {url}')
+                    flag_rank.remove(f_r)
+                    dict_l = dict((i.get('group_id'), i.get('rank')) for i in r.json())
+                    if tag_id in dict_l:
+                        if up.endswith('P'):
+                            msg += f"双排 排名 {dict_l[tag_id]} !"
+                        else:
+                            msg += f"四排 排名 {dict_l[tag_id]} !"
+
+            return msg
+        except Exception as ex:
+            print(f'Exception, league_rank_msg: {ex}')
+            return
+
 
 def _medal_str(old_m, new_m):
     msg = ''
@@ -309,6 +350,18 @@ def _battle_result_msg(battle, sp2_user, battle_poll=None):
 
         if battle.battle_type == SP2BattleType.League:
             battle_poll.flag_medal = 1
+
+            if battle.group_id:
+                t = 'T' if 'league_team' in battle.game_mode else 'P'
+                now = dt.now()
+                hh = 9 if now.hour % 2 else 8
+                nn = now - timedelta(hours=hh)
+                rank_text = f"{nn.strftime('%y%m%d%H')}{t},{battle.group_id}"
+                list_rank = battle_poll.flag_rank
+                if rank_text not in list_rank:
+                    list_rank.append(rank_text)
+                list_rank = list_rank[-6:]
+                battle_poll.flag_rank = list_rank
 
     else:
         lines.append(f"Battle ID:{battle.battle_number}")

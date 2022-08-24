@@ -74,6 +74,7 @@ class BattlePoll(Model):
                  last_battle_status=0,
                  last_medal=None,
                  flag_medal=0,
+                 flag_rank=None,
                  game_count=0,
                  game_victory_count=0):
         self.chat = chat
@@ -88,6 +89,7 @@ class BattlePoll(Model):
 
         self.last_medal = last_medal
         self.flag_medal = flag_medal
+        self.flag_rank = flag_rank or []
 
     @classmethod
     def de_json(cls, data):
